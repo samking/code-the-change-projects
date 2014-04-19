@@ -18,8 +18,8 @@ A projects database for projects at the intersection of CS and social change.
 * Go to the project directory (`cd ~/code-the-change-projects` if you cloned the
   repo in your home directory).
 * Run `dev_appserver.py .` to run a local server.
-* Go to [http://localhost:8080/]() to see the site running or
-  [http://localhost:8000/]() to see the admin console.
+* Go to [http://localhost:8080/](http://localhost:8080/) to see the site running or
+  [http://localhost:8000/](http://localhost:8000/) to see the admin console.
 * You don't need to do anything to deploy code to production.  Pushing to git
   will deploy.
 
