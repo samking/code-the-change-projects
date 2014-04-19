@@ -11,15 +11,15 @@ A projects database for projects at the intersection of CS and social change.
 * Make sure that you add the path and completion modules to your shell's startup
   file.  Assuming you use bash, the Cloud SDK installer should do this for you.
   You will need to restart your shell, re-import your config file (`source
-  ~/.bashrc`) or re-run your shell (`bash`).
+  ~/.bashrc`), or re-run your shell (`bash`).
 
 # Development
 
 * Go to the project directory (`cd ~/code-the-change-projects` if you cloned the
   repo in your home directory).
 * Run `dev_appserver.py .` to run a local server.
-* Go to http://localhost:8080/ to see the site running or
-  http://localhost:8000/ to see the admin console.
+* Go to [http://localhost:8080/]() to see the site running or
+  [http://localhost:8000/]() to see the admin console.
 * You don't need to do anything to deploy code to production.  Pushing to git
   will deploy.
 
