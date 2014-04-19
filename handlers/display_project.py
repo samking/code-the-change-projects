@@ -8,5 +8,6 @@ class DisplayProject(webapp2.RequestHandler):
     """The handler for displaying a project."""
 
     def get(self, project_id):
+        """Renders the project page in response to a GET request."""
         values = {'project_id': project_id}
         self.response.write(templates.render('display_project.html', values))

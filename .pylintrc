@@ -1,0 +1,7 @@
+[REPORTS]
+# Use colors rather than plain text.
+output-format=colorized
+# Only display the messages, not the full report.
+reports=no
+# Display the ID of the errors and warnings to make them easier to disable.
+include-ids=y

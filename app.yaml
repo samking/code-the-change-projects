@@ -9,7 +9,7 @@ handlers:
   static_files: favicon.ico
   upload: favicon.ico
 - url: /.*
-  script: server.application
+  script: server.APP
   secure: always
 
 libraries:

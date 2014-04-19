@@ -1,3 +1,4 @@
+"""The server which handles all routing logic."""
 import os
 
 import webapp2
@@ -12,7 +13,7 @@ from handlers import new_project
 IS_DEV = os.environ['SERVER_SOFTWARE'].startswith('Development')
 
 
-application = webapp2.WSGIApplication([
+APP = webapp2.WSGIApplication([
     ('/', main.MainPage),
     ('/projects', list_projects.ListProjects),
     ('/project/(\d+)', display_project.DisplayProject),

@@ -11,6 +11,7 @@ class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
 
     def get(self):
+        """Renders the main landing page in response to a GET request."""
         user = users.get_current_user()
         if user:
             values = {'email': user.email()}
