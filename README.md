@@ -29,3 +29,4 @@ A projects database for projects at the intersection of CS and social change.
   [Python](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html),
   [Javascript](https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml),
   [HTML/CSS](https://google-styleguide.googlecode.com/svn/trunk/htmlcssguide.xml)).
+* Please run `scripts/lint.py` and fix all warnings before submitting code.
