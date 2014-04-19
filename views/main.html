@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block body %}
+  <p>Hello, {{ email}}</p>
+  <ul>
+    <li><a href='/projects'>Projects List</a></li>
+    <li><a href='/project/123'>Display Project</a></li>
+    <li><a href='/project/new'>Create Project</a></li>
+    <li><a href='/project/123/edit'>Update Project</a></li>
+  </ul>
+{% endblock body %}
