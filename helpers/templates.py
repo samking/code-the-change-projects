@@ -13,7 +13,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     autoescape=True)
 
 
-def render(template_name, template_values):
+def render(template_name, template_values=None):
     """Renders the template with the provided name and values.
 
     Args:
@@ -23,4 +23,5 @@ def render(template_name, template_values):
     Returns:
       The rendered template as a string.
     """
+    template_values = template_values or {}
     return JINJA_ENVIRONMENT.get_template(template_name).render(template_values)

@@ -1,4 +1,11 @@
 {% extends 'base.html' %}
 {% block body %}
   <p>New Project!</p>
+  <form action="/project/new" method="post">
+    <div>Title</div>
+    <div><input type='text' name='title'></div>
+    <div>Description</div>
+    <div><textarea name="description" rows="3" cols="60"></textarea></div>
+    <div><input type="submit" value="Create New Project"></div>
+  </form>
 {% endblock body %}
