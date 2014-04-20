@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block customheader %}
+  <!-- Custom styles for this template -->
+  <link href="/static/css/carousel.css" rel="stylesheet">
+  <link href="/static/css/signin.css" rel="stylesheet">
+{% endblock customheader %}
 {% block body %}
       <!-- Carousel
            ================================================== -->
@@ -70,14 +75,8 @@
           <a class="right carousel-control" href="#myCarousel" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
         </div> <!-- /.carousel-->
       </div>
-      <button class="btn btn-primary" id="button-signin">Sign In</button>
-      <button class="btn btn-danger" id="button-signup">Sign Up</button>
+      <a href="{{ loginurl }}"><button class="btn btn-primary" id="button-signin">Sign In</button></a>
+      <a href="{{ loginurl }}"><button class="btn btn-danger" id="button-signup">Sign Up</button></a>
       </div>
 
-      <script>
-        $('#button-signin').click(function(e) {
-          e.preventDefault();
-          
-        });
-      </script>
 {% endblock body %}

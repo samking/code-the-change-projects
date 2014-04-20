@@ -35,10 +35,26 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         """Renders the main landing page in response to a GET request."""
         user = users.get_current_user()
+        values = {'email': user.email(), 'loginurl': users.create_login_url('/dashboard')}
+        self.response.write(templates.render('main.html', values))
+
+class DisplayDashboard(webapp2.RequestHandler):
+    """ the handler for displaying a which projects the user is working on """
+    def get(self):
+        """ Renders the dashboard corresponding to the logged in user"""
+        user = users.get_current_user()
         if user:
-            print "********** REQUEST URI: ", self.request.uri
-            values = {'email': user.email(), 'loginurl': users.create_login_url(self.request.uri)}
-            self.response.write(templates.render('main.html', values))
+            values = {
+              "own": [
+                {"title": "awesome project", "id": "1"}, 
+                {"title": "awesomer project", "id": "2"},
+              ],
+              "contributing": [
+                {"title": "pandas need my help", "id":"3"}, 
+                {"title": "fixing education", "id":"4"},
+              ],
+            }
+            self.response.write(templates.render('dashboard.html', values))
         else:
             self.redirect(users.create_login_url(self.request.uri))
 
