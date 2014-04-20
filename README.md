@@ -27,6 +27,22 @@ A projects database for projects at the intersection of CS and social change.
 * You don't need to do anything to deploy code to production.  When the pull
   request is accepted, it will be deployed automatically.
 
+# Testing
+
+* First, install `easy_install`: `sudo apt-get install python-setuptools` in
+  Ubuntu.
+* Second, install `nose` (a test runner for Python): `sudo easy_install nose` in
+  Ubuntu.
+* Third, install `NoseGAE` (a nose plugin for Google App Engine that sets up the
+  app engine environment and runs tests):
+  `sudo easy_install NoseGAE` in Ubuntu.
+* Now, whenever you want to run tests, all you have to do is run
+  `scripts/test.py` (which will run nosetests for you, looking up your app
+  engine directory from your PATH).  You can also run the tests manually, but
+  that would require properly setting the PYTHONPATH (eg, using
+  `scripts.common.fix_app_engine_path()`).  Please make sure that you fix all
+  tests before submitting code (as well as testing new features you add).
+
 # Style
 
 * Please adhere to the relevant Google Style Guides:
