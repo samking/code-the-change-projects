@@ -3,7 +3,7 @@
 
 import os
 
-from scripts import common
+import common
 
 
 def clean():

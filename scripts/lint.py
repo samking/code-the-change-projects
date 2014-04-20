@@ -7,7 +7,9 @@ an OSError if you don't have it installed.
 import os
 import subprocess
 
-from scripts import common
+# To support running this file from the root, pylint: disable=F0401
+import common
+# pylint: enable=F0401
 
 
 # Libraries, like Jinja or Webapp2, that App Engine provides automatically.
@@ -45,6 +47,9 @@ def fix_python_path():
     google_cloud_library_base = google_cloud_dir + LIBRARY_PATH
     # Add the extra libraries to PYTHONPATH
     envs = os.environ.copy()
+    # If I run lint from the scripts directory, it needs the project directory
+    # to be added to pythonpath for local imports.
+    envs['PYTHONPATH'] += ':' + common.get_project_dir()
     envs['PYTHONPATH'] += ':' + google_cloud_dir + APP_ENGINE_API_PATH
     for library in EXTRA_LIBRARIES:
         envs['PYTHONPATH'] += ':' + google_cloud_library_base + library
