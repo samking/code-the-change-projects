@@ -7,7 +7,6 @@ from google.appengine.ext import ndb
 from helpers import templates
 from models import project
 
-
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
 
@@ -15,7 +14,8 @@ class MainPage(webapp2.RequestHandler):
         """Renders the main landing page in response to a GET request."""
         user = users.get_current_user()
         if user:
-            values = {'email': user.email()}
+            print "********** REQUEST URI: ", self.request.uri
+            values = {'email': user.email(), 'loginurl': users.create_login_url(self.request.uri)}
             self.response.write(templates.render('main.html', values))
         else:
             self.redirect(users.create_login_url(self.request.uri))
