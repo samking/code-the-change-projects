@@ -1,7 +1,13 @@
 #!/usr/bin/env python
-"""Fixes environment variables and runs pylint on the project directory."""
+"""Fixes environment variables and runs pylint on the project directory.
+
+Note that this uses pylint, so you must have pylint installed.  You will get
+an OSError if you don't have it installed.
+"""
 import os
 import subprocess
+
+from scripts import common
 
 
 # Libraries, like Jinja or Webapp2, that App Engine provides automatically.
@@ -27,12 +33,12 @@ def get_cloud_dir():
     # root, so we strip this.
     google_cloud_dir = os.path.dirname(google_cloud_dir)
     return google_cloud_dir
-            
+
 
 def fix_python_path():
     """Adds App Engine libraries to the PYTHONPATH.
-    
-    Returns: 
+
+    Returns:
         A copy of os.environ with the modified PYTHONPATH.
     """
     google_cloud_dir = get_cloud_dir() + '/'
@@ -45,15 +51,9 @@ def fix_python_path():
     return envs
 
 
-def get_project_dir():
-    """Returns the directory of the project containing this script."""
-    # The parent of this script's directory is the project's root.
-    return os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-
-
 def get_files_to_lint():
     """Returns a list of all python files in the project's directory."""
-    project_dir = get_project_dir()
+    project_dir = common.get_project_dir()
     files_to_lint = []
     for root, _, filenames in os.walk(project_dir):
         for filename in filenames:
@@ -66,13 +66,14 @@ def get_files_to_lint():
 
 def get_pylint_command(files_to_lint):
     """Returns a list representing the pylint command.
-    
+
     Args:
         files_to_lint: A list of files to run pylint on.
     """
     # We need to specify the rcfile because we want it to be a dotfile, but
     # pylint expects it to be called "pylintrc" without the dot.
-    pylint_command = ['pylint', '--rcfile=%s/.pylintrc' % get_project_dir()]
+    pylint_command = [
+        'pylint', '--rcfile=%s/.pylintrc' % common.get_project_dir()]
     return pylint_command + files_to_lint
 
 
