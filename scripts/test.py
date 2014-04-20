@@ -13,8 +13,8 @@ def run_tests():
     app_engine_dir = common.get_app_engine_dir()
     project_dir = common.get_project_dir()
     subprocess.call(
-        ['nosetests', '--with-gae', '--gae-lib-root', app_engine_dir,
-         project_dir])
+       ['nosetests', '--with-gae', '--without-sandbox', '--gae-lib-root',
+         app_engine_dir, project_dir])
 
 if __name__ == '__main__':
     run_tests()
