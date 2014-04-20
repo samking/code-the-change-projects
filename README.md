@@ -5,7 +5,8 @@ A projects database for projects at the intersection of CS and social change.
 
 # Setup
 
-* Clone this repo.  You may want to rename the folder to ctc-projects for
+* Fork this repo.  This will make pull requests and code review easier.
+* Clone the forked repo.  You may want to rename the folder to ctc-projects for
   convenience.
 * Install Google Cloud SDK: https://developers.google.com/cloud/sdk/
 * Make sure that you add the path and completion modules to your shell's startup
@@ -20,8 +21,11 @@ A projects database for projects at the intersection of CS and social change.
 * Run `dev_appserver.py .` to run a local server.
 * Go to [http://localhost:8080/](http://localhost:8080/) to see the site running or
   [http://localhost:8000/](http://localhost:8000/) to see the admin console.
-* You don't need to do anything to deploy code to production.  Pushing to git
-  will deploy.
+* When you're ready to submit your code, submit a pull request with the base in
+  this repo and the changes in your repo.  Then, there will be a code review,
+  and when that's done, we'll merge the branches.
+* You don't need to do anything to deploy code to production.  When the pull
+  request is accepted, it will be deployed automatically.
 
 # Style
 
