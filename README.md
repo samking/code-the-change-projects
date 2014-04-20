@@ -18,9 +18,10 @@ A projects database for projects at the intersection of CS and social change.
 
 * Go to the project directory (`cd ~/code-the-change-projects` if you cloned the
   repo in your home directory).
-* Run `dev_appserver.py .` to run a local server.
-* Go to [http://localhost:8080/](http://localhost:8080/) to see the site running or
-  [http://localhost:8000/](http://localhost:8000/) to see the admin console.
+* Run `dev_appserver.py .` to run a local server.  Note that this is in the
+  Cloud SDK, not this project's directory.
+* Go to [http://localhost:8080/](http://localhost:8080/) to see the site running
+  or [http://localhost:8000/](http://localhost:8000/) to see the admin console.
 * When you're ready to submit your code, submit a pull request with the base in
   this repo and the changes in your repo.  Then, there will be a code review,
   and when that's done, we'll merge the branches.
@@ -29,13 +30,15 @@ A projects database for projects at the intersection of CS and social change.
 
 # Testing
 
-* First, install `easy_install`: `sudo apt-get install python-setuptools` in
+* Install `easy_install`: `sudo apt-get install python-setuptools` in
+  Ubuntu.  pip or other Python package installers should work as well.
+* Install `nose` (a test runner for Python): `sudo easy_install nose` in
   Ubuntu.
-* Second, install `nose` (a test runner for Python): `sudo easy_install nose` in
-  Ubuntu.
-* Third, install `NoseGAE` (a nose plugin for Google App Engine that sets up the
+* Install `NoseGAE` (a nose plugin for Google App Engine that sets up the
   app engine environment and runs tests):
   `sudo easy_install NoseGAE` in Ubuntu.
+* Install `webtest` (an integration testing framework for webapps): 
+  `sudo easy-install webtest` in Ubuntu.
 * Now, whenever you want to run tests, all you have to do is run
   `scripts/test.py` (which will run nosetests for you, looking up your app
   engine directory from your PATH).  You can also run the tests manually, but
