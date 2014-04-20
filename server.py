@@ -3,20 +3,29 @@ import os
 
 import webapp2
 
-from handlers import display_project
-from handlers import edit_project
-from handlers import list_projects
-from handlers import main
-from handlers import new_project
+import handlers
 
 
 IS_DEV = os.environ['SERVER_SOFTWARE'].startswith('Development')
 
 
+def named_route(path, handler):
+    """Returns a webapp2 route with a name populated.
+
+    Args:
+        path: the string path to handle.
+        handler: a class that will be used as the handler and as the name.
+
+    Returns:
+        The corresponding webapp2 handler.
+    """
+    return webapp2.Route(path, handler=handler, name=handler)
+
+
 APP = webapp2.WSGIApplication([
-    ('/', main.MainPage),
-    ('/projects', list_projects.ListProjects),
-    ('/project/(\d+)', display_project.DisplayProject),
-    ('/project/(\d+)/edit', edit_project.EditProject),
-    ('/project/new', new_project.NewProject),
+    named_route(r'/', handlers.MainPage),
+    named_route(r'/projects', handlers.ListProjects),
+    named_route(r'/project/<project_id:\d+>', handlers.DisplayProject),
+    named_route(r'/project/<project_id:\d+>/edit', handlers.EditProject),
+    named_route(r'/project/new', handlers.NewProject),
 ], debug=IS_DEV)

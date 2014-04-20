@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
 {% block body %}
-  <p>Displaying Project {{ project_id }}!</p>
+  <p>Title: {{ project.title }}</p>
+  <p>Description: {{ project.description }}</p>
+  <p>Created: {{ project.created_date }}</p>
+  <p>Updated: {{ project.updated_date }}</p>
+  <p><a href='{{ edit_link }}'>Edit</a></p>
 {% endblock body %}
