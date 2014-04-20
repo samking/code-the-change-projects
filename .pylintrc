@@ -5,3 +5,9 @@ output-format=colorized
 reports=no
 # Display the ID of the errors and warnings to make them easier to disable.
 include-ids=y
+
+[MESSAGES CONTROL]
+# We don't want to see suppressed warnings, TODOs, classes with few public
+# members (like ndb.Model subclasses), or modules with no member (since pylint
+# doesn't deal with the dynamic imports in ndb properties correctly).
+disable=I0011,W0511,E1101,R0903

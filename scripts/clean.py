@@ -3,7 +3,9 @@
 
 import os
 
+# To support running this file from the root, pylint: disable=F0401
 import common
+# pylint: enable=F0401
 
 
 def clean():
