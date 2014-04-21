@@ -9,11 +9,9 @@ class User(ndb.Model):
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
     updated_date = ndb.DateTimeProperty(required=True, auto_now=True)
 
-
 def get_current_user_key():
     """gets the ndb Key for the current logged in user,
-     creates user if necessary.
-     returns None if user not logged in"""
+    creates user if necessary. Returns None if user not logged in"""
     user_object = None
     if users.get_current_user():
         user_id = users.get_current_user().user_id()

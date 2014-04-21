@@ -5,7 +5,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 
 from helpers import templates
-from models import project, user
+from models import project, user, collaborator
 
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
@@ -89,6 +89,30 @@ class NewProject(webapp2.RequestHandler):
             description=self.request.get('description'),
             owner_key=current_user_key).put()
         self.redirect_to(DisplayProject, project_id=new_project.id())
+
+
+class JoinProject(webapp2.RequestHandler):
+    """Handler for a request to join a project."""
+
+    def get(self, project_id):
+        """Renders a join page in response to a GET request."""
+        project_to_edit = ndb.Key(project.Project, int(project_id)).get()
+        edit_link = self.uri_for(JoinProject, project_id=project_id)
+        values = {
+            'project': project_to_edit, 'action_link': edit_link,
+            'action': 'Join'}
+        self.response.write(templates.render('join_project.html', values))
+
+    def post(self, project_id):
+        """Accepts a request to join a project."""
+        current_user_key = user.get_current_user_key()
+        if not current_user_key:
+            self.redirect_to(NotLoggedIn)
+            return
+        collaborator.Collaborator(
+            user_key=current_user_key,
+            project_key=ndb.Key(project.Project, project_id)).put()
+        self.redirect_to(DisplayProject, project_id=project_id)
 
 
 class NotLoggedIn(webapp2.RequestHandler):
