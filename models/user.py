@@ -15,7 +15,10 @@ def get_current_user_key():
     if users.get_current_user():
         user_id = users.get_current_user().user_id()
         user_object = User.get_by_id(user_id)
-    if not user_id:
+    if id and not user_object:
+        user_object = User(user_id=user_id)
+        user_object.put()
+    else:
         return None
     if not user_object:
         user_object = User(id=user_id)
