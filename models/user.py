@@ -22,5 +22,3 @@ def get_current_user_key():
         user_object.put()
 
     return ndb.Key(User, user_object.key.id())
-
-

@@ -7,6 +7,7 @@ from google.appengine.ext import ndb
 from functools import wraps
 
 from helpers import templates
+<<<<<<< HEAD
 from models import collaborator
 from models import project
 from models import user as user_model
@@ -29,6 +30,9 @@ def require_login(request_func):
     return new_request_func
 
 
+=======
+from models import project, user
+>>>>>>> tied an owner to each project
 
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
@@ -148,13 +152,4 @@ class JoinProject(webapp2.RequestHandler):
             user_key=current_user_key,
             project_key=ndb.Key(project.Project, project_id)).put()
         self.redirect_to(DisplayProject, project_id=project_id)
-
-
-class NotLoggedIn(webapp2.RequestHandler):
-    """Handler for when user is not logged in"""
-
-    def get(self):
-        """error page for failure to log in"""
-        self.response.write(templates.render('notloggedin.html'))
-
 
