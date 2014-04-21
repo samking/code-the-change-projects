@@ -5,6 +5,14 @@ from models import user
 class Project(ndb.Model):
     """A model for one project."""
     title = ndb.StringProperty(required=True)
+    lead = ndb.TextProperty(required=True)
+    techObj = ndb.TextProperty(required=True)
+    gitHub = ndb.TextProperty(required=True)
+    
+    numDays = ndb.IntegerProperty(required=True, default=0)
+    numCommits = ndb.IntegerProperty(required=True, default=0)
+    numContributors = ndb.IntegerProperty(required=True,default =0)
+    
     description = ndb.TextProperty(required=True)
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
     updated_date = ndb.DateTimeProperty(required=True, auto_now=True)
