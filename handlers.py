@@ -12,8 +12,10 @@ class MainPage(webapp2.RequestHandler):
 
     def get(self):
         """Renders the main landing page in response to a GET request."""
-        user = users.get_current_user()
-        values = {'email': user.email(), 'loginurl': users.create_login_url('/dashboard')}
+        values = {
+          'loginurl': users.create_login_url('/dashboard'),
+          'logouturl': users.create_logout_url('/')
+        }
         self.response.write(templates.render('main.html', values))
 
 class DisplayDashboard(webapp2.RequestHandler):
@@ -23,6 +25,7 @@ class DisplayDashboard(webapp2.RequestHandler):
         user = users.get_current_user()
         if user:
             values = {
+              "logouturl" : users.create_logout_url('/'),
               "own": [
                 {"title": "awesome project", "id": "1"}, 
                 {"title": "awesomer project", "id": "2"},
