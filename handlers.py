@@ -5,8 +5,7 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 
 from helpers import templates
-from models import project
-
+from models import project, user
 
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
@@ -79,7 +78,24 @@ class NewProject(webapp2.RequestHandler):
 
     def post(self):
         """Accepts a request to create a new project."""
+
+        current_user_key = user.get_current_user_key()
+        if not current_user_key:
+            self.redirect_to(NotLoggedIn)
+            return
+
         new_project = project.Project(
             title=self.request.get('title'),
-            description=self.request.get('description')).put()
+            description=self.request.get('description'),
+            owner_key=current_user_key).put()
         self.redirect_to(DisplayProject, project_id=new_project.id())
+
+
+class NotLoggedIn(webapp2.RequestHandler):
+    """Handler for when user is not logged in"""
+
+    def get(self):
+        """error page for failure to log in"""
+        self.response.write(templates.render('notloggedin.html'))
+
+
