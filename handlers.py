@@ -13,26 +13,26 @@ class MainPage(webapp2.RequestHandler):
     def get(self):
         """Renders the main landing page in response to a GET request."""
         values = {
-          'loginurl': users.create_login_url('/dashboard'),
-          'logouturl': users.create_logout_url('/')
+          'login_url': users.create_login_url('/dashboard'),
+          'logout_url': users.create_logout_url('/')
         }
         self.response.write(templates.render('main.html', values))
 
 class DisplayDashboard(webapp2.RequestHandler):
-    """ the handler for displaying a which projects the user is working on """
+    """The handler for displaying a which projects the user is working on"""
     def get(self):
-        """ Renders the dashboard corresponding to the logged in user"""
+        """Renders the dashboard corresponding to the logged in user"""
         user = users.get_current_user()
         if user:
             values = {
-              "logouturl" : users.create_logout_url('/'),
-              "own": [
-                {"title": "awesome project", "id": "1"}, 
-                {"title": "awesomer project", "id": "2"},
+              'logout_url' : users.create_logout_url('/'),
+              'own': [
+                {'title': 'awesome project', 'id': '1'}, 
+                {'title': 'awesomer project', 'id': '2'},
               ],
-              "contributing": [
-                {"title": "pandas need my help", "id":"3"}, 
-                {"title": "fixing education", "id":"4"},
+              'contributing': [
+                {'title': 'pandas need my help', 'id':'3'}, 
+                {'title': 'fixing education', 'id':'4'},
               ],
             }
             self.response.write(templates.render('dashboard.html', values))
