@@ -9,44 +9,44 @@
         <div class="col-md-8">
           <h3>Title</h3>
           <div class="input-group input-large">
-            <input type="text" class="form-control" name = "title" placeholder="Enter a title for your project."></input>
+            <input type="text" class="form-control" name="title" placeholder="Enter a title for your project."></input>
           </div>
 
           <h3>Category</h3>
           <div class="input-group input-large">
-            <input type="text" class="form-control" name = "category" placeholder="Enter a category...">
+            <input type="text" class="form-control" name="category" placeholder="Enter a category...">
             <!--Ideally: when you type something, autocomplete will search for a pre-existing category. When you have entered a category that doesn't exist, website will try to find a category that is not there, and otherwise will produce a warning.-->
           </div>
 
           <h3>Project Objective</h3>
           <div class="input-group input-large">
-            <input type="text" class="form-control" name = "lead" placeholder="Enter the objective for the project. Maximum 200 characters.">
+            <input type="text" class="form-control" name="lead" placeholder="Enter the objective for the project. Maximum 200 characters.">
           </div>
 
 
           <h3>Github Page</h3>
           <div class="input-group input-large">
-            <input type="text" class="form-control" name = "github" placeholder="Enter a Github page for your project if it exists.">
+            <input type="text" class="form-control" name="github" placeholder="Enter a Github page for your project if it exists.">
           </div>
 
           <h3>Organization</h3>
           <div class="input-group input-large">
-            <input type="text" class="form-control" name = "organization" placeholder="Enter a name for your organization.">
+            <input type="text" class="form-control" name="organization" placeholder="Enter a name for your organization.">
           </div>
 
           <h3>People Involved</h3>
           <div class="input-group input-large">
-            <input type="text" class="form-control" name = "contributors" placeholder="Enter others who are involved with this project.">
+            <input type="text" class="form-control" name="contributors" placeholder="Enter others who are involved with this project.">
           </div>
 
           <h3>Description</h3>
           <div class="input-group input-large">
-            <textarea class="form-control" rows="5" name = "description" placeholder="Enter a description. What do you plan to achieve with this project?"></textarea>
+            <textarea class="form-control" rows="5" name="description" placeholder="Enter a description. What do you plan to achieve with this project?"></textarea>
           </div>
 
           <h3>Technical Objectives</h3>
           <div class="input-group input-large">
-            <textarea class="form-control" rows="5" name = "tech_objectives" placeholder="Enter examples of coding knowledge necessary to accomplish this project."></textarea>
+            <textarea class="form-control" rows="5" name="tech_objectives" placeholder="Enter examples of coding knowledge necessary to accomplish this project."></textarea>
           </div>
 
           <h3>Tags</h3>
@@ -54,16 +54,7 @@
             <input type="text" class="form-control" name = "tags" placeholder="Enter some tags. EX: music, social, art education...">
           </div>
           <div><input class="btn btn-primary" type = "submit" value = "Create New Project"></div>
-          <div></div>
         </form>
-
-          <!--Todo: turn items into pills-->
-
-          <!--To add:
-          -Category
-
-
-          -->
         </div>
         <div class="col-md-4">
           <div>
@@ -83,19 +74,4 @@
     <!--END MAIN BODY-->
 
 
-
-
-
-
-
-<!--
-  <p>New Project!</p>
-  <form action="/project/new" method="post">
-    <div>Title</div>
-    <div><input type='text' name='title'></div>
-    <div>Description</div>
-    <div><textarea name="description" rows="3" cols="60"></textarea></div>
-    <div><input type="submit" value="Create New Project"></div>
-  </form>
--->
 {% endblock body %}
