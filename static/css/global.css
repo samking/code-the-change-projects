@@ -1,0 +1,10 @@
+#header-wrapper {
+  width: 80%;
+  margin: 0 auto;
+}
+
+/* navbar css */
+#createproject{
+  font-weight: 800;
+  color: red; 
+}
