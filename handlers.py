@@ -7,7 +7,6 @@ from google.appengine.ext import ndb
 from functools import wraps
 
 from helpers import templates
-<<<<<<< HEAD
 from models import collaborator
 from models import project
 from models import user as user_model
@@ -28,11 +27,6 @@ def require_login(request_func):
         else:
             self.redirect(users.create_login_url(self.request.uri))
     return new_request_func
-
-
-=======
-from models import project, user
->>>>>>> tied an owner to each project
 
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
@@ -130,7 +124,6 @@ class NewProject(webapp2.RequestHandler):
         new_project = project.Project().populate(self, current_user_key)
         new_project_key = new_project.put()
         self.redirect_to(DisplayProject, project_id=new_project_key.id())
-
 
 class JoinProject(webapp2.RequestHandler):
     """Handler for a request to join a project."""
