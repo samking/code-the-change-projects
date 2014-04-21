@@ -6,12 +6,12 @@ class Project(ndb.Model):
     """A model for one project."""
     title = ndb.StringProperty(required=True)
     lead = ndb.TextProperty(required=True)
-    techObj = ndb.TextProperty(required=True)
-    gitHub = ndb.TextProperty(required=True)
+    tech_objectives = ndb.TextProperty(required=True)
+    github = ndb.TextProperty(required=True)
     
-    numDays = ndb.IntegerProperty(required=True, default=0)
-    numCommits = ndb.IntegerProperty(required=True, default=0)
-    numContributors = ndb.IntegerProperty(required=True,default =0)
+    num_days = ndb.IntegerProperty(required=False, default=0)
+    num_commits = ndb.IntegerProperty(required=False, default=0)
+    num_contributors = ndb.IntegerProperty(required=False,default =0)
     
     description = ndb.TextProperty(required=True)
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
