@@ -8,20 +8,20 @@
        
 
        <div class = "col-xs-8">
-         <h2>Technical Objectives</h2>
-         	<p id = "technicalObjectives">{{project.techObj}}</p>
          <h2>Project Objectives</h2>
-         	<p id = "project Objectives">{{project.projObj}}</p>
-         <p id = "gitHub"> {{project.gitHub}} </p>	
+          <p id = "project Objectives">{{project.description}}</p>
+         <h2>Technical Objectives</h2>
+         	<p id = "technicalObjectives">{{project.tech_objectives}}</p>
+         <p id = "github"> {{project.github}} </p>	
         </div>
 
         <div class  = "col-xs-4">
         	<div id = "numbers">
-        		<h1>{{project.numDays}}</h1>
+        		<h1>{{project.num_days}}</h1>
         		<p>Days in progress</p>
-        		<h1>{{project.numCommits}}</h1>
+        		<h1>{{project.num_commits}}</h1>
         		<p>Git commits</p>
-        		<h1>{{project.numContributors}}</h1>
+        		<h1>{{project.num_contributors}}</h1>
         		<p>People Involved</p>
         		<center> <p><a class="btn btn-primary btn-lg" role="button">Join the Team</a></p>
                 <center> <p><a class="btn btn-primary btn-lg" role="button">Contribute Code</a></p>

@@ -116,7 +116,7 @@ class NewProject(webapp2.RequestHandler):
         """Renders the new project page in response to a GET request."""
         values = {
             'action': 'Create New', 'action_link': self.uri_for(NewProject)}
-        self.response.write(templates.render('edit_project.html', values))
+        self.response.write(templates.render('new_project.html', values))
 
     @require_login
     def post(self):
@@ -125,7 +125,11 @@ class NewProject(webapp2.RequestHandler):
         new_project = project.Project(
             title=self.request.get('title'),
             description=self.request.get('description'),
-            owner_key=current_user_key).put()
+            owner_key=current_user_key,
+            lead=self.request.get('lead'),
+            tech_objectives=self.request.get('tech_objectives'),
+            github=self.request.get('github'),
+            description=self.request.get('description')).put()
         self.redirect_to(DisplayProject, project_id=new_project.id())
 
 
