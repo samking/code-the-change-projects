@@ -102,6 +102,10 @@ class FunctionalTests(unittest.TestCase):
         self.assertEqual(main_page.status_int, 200)
         self.assertIn('Code the Change', main_page.body)
 
+    def test_analytics(self):
+        page = self.testapp.get('/projects')
+        self.assertIn('google-analytics', page)
+
 
 if __name__ == '__main__':
     unittest.main()
