@@ -7,6 +7,8 @@ from google.appengine.ext import ndb
 from functools import wraps
 
 from helpers import templates
+from helpers import decorators
+
 from models import collaborator
 from models import project
 from models import user as user_model
