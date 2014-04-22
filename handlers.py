@@ -5,7 +5,12 @@ from google.appengine.api import users
 from google.appengine.ext import ndb
 
 from helpers import templates
-from models import project, user, collaborator
+from helpers import decorators
+
+from models import collaborator
+from models import project
+from models import user as user_model
+
 
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
@@ -76,14 +81,10 @@ class NewProject(webapp2.RequestHandler):
             'action': 'Create New', 'action_link': self.uri_for(NewProject)}
         self.response.write(templates.render('edit_project.html', values))
 
+    @decorators.require_login
     def post(self):
         """Accepts a request to create a new project."""
-
-        current_user_key = user.get_current_user_key()
-        if not current_user_key:
-            self.redirect_to(NotLoggedIn)
-            return
-
+        current_user_key = user_model.get_current_user_key()
         new_project = project.Project(
             title=self.request.get('title'),
             description=self.request.get('description'),
@@ -103,12 +104,10 @@ class JoinProject(webapp2.RequestHandler):
             'action': 'Join'}
         self.response.write(templates.render('join_project.html', values))
 
+    @decorators.require_login
     def post(self, project_id):
         """Accepts a request to join a project."""
-        current_user_key = user.get_current_user_key()
-        if not current_user_key:
-            self.redirect_to(NotLoggedIn)
-            return
+        current_user_key = user_model.get_current_user_key()
         collaborator.Collaborator(
             user_key=current_user_key,
             project_key=ndb.Key(project.Project, project_id)).put()
