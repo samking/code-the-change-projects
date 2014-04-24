@@ -4,13 +4,30 @@ import webapp2
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
+from functools import wraps
+
 from helpers import templates
-from helpers import decorators
 
 from models import collaborator
 from models import project
 from models import user as user_model
 
+def require_login(request_func):
+    """Decorator: only handle the provided request if the user is logged in.
+    Else, redirect to the login page.
+  Args:
+   request_func: function. A function that handles a request.
+  Returns:
+    A function that will execute request_func only if the user is logged in.
+  """
+    @wraps(request_func)
+    def new_request_func(self):
+        """Redirects logged out users to the login page."""
+        if users.get_current_user():
+            return request_func(self)
+        else:
+            self.redirect(users.create_login_url(self.request.uri))
+    return new_request_func
 
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
@@ -81,7 +98,7 @@ class NewProject(webapp2.RequestHandler):
             'action': 'Create New', 'action_link': self.uri_for(NewProject)}
         self.response.write(templates.render('edit_project.html', values))
 
-    @decorators.require_login
+    @require_login
     def post(self):
         """Accepts a request to create a new project."""
         current_user_key = user_model.get_current_user_key()
@@ -104,7 +121,7 @@ class JoinProject(webapp2.RequestHandler):
             'action': 'Join'}
         self.response.write(templates.render('join_project.html', values))
 
-    @decorators.require_login
+    @require_login
     def post(self, project_id):
         """Accepts a request to join a project."""
         current_user_key = user_model.get_current_user_key()
