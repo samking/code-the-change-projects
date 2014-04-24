@@ -48,6 +48,7 @@ A projects database for projects at the intersection of CS and social change.
 
 # Style
 
+* Install pylint.  Use `sudo apt-get install pylint` in Ubuntu.
 * Please adhere to the relevant Google Style Guides:
   [Python](http://google-styleguide.googlecode.com/svn/trunk/pyguide.html),
   [Javascript](https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml),
