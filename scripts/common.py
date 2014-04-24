@@ -43,4 +43,6 @@ def fix_app_engine_path():
     # Add the new sys.path to PYTHONPATH since child processes (like nose and
     # lint) don't inherit sys.path.
     new_paths = ':' + ':'.join(sys.path)
+    if 'PYTHONPATH' not in os.environ:
+        os.environ['PYTHONPATH'] = '.'
     os.environ['PYTHONPATH'] += new_paths
