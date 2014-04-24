@@ -6,7 +6,9 @@ import webapp2
 import handlers
 
 
-IS_DEV = os.environ['SERVER_SOFTWARE'].startswith('Development')
+IS_DEV = (
+    'SERVER_SOFTWARE' in os.environ and
+    os.environ['SERVER_SOFTWARE'].startswith('Development'))
 
 
 def named_route(path, handler):
