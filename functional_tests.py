@@ -91,7 +91,7 @@ class FunctionalTests(unittest.TestCase):
         self.assertEqual(project_page.status_int, 200)
         self.assertIn('hello', project_page.body)
         self.assertIn('world', project_page.body)
-        self.assertIn('/project/%d/edit' % project_id, project_page.body)
+        
 
     def test_get_main_page(self):
         self.testbed.setup_env(
