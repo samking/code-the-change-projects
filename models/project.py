@@ -11,7 +11,7 @@ class Project(ndb.Model):
     
     num_days = ndb.IntegerProperty(required=False, default=0)
     num_commits = ndb.IntegerProperty(required=False, default=0)
-    num_contributors = ndb.IntegerProperty(required=False,default =0)
+    num_contributors = ndb.IntegerProperty(required=False, default =0)
     
     description = ndb.TextProperty(required=True)
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
