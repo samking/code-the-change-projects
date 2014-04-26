@@ -1,4 +1,5 @@
 """A model for one project."""
+
 from google.appengine.ext import ndb
 from models import user
 

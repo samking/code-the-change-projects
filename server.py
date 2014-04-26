@@ -1,4 +1,4 @@
-"""The server which handles all routing logic."""
+"""The server, which handles all routing logic."""
 import os
 
 import webapp2
