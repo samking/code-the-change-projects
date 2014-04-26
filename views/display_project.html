@@ -1,8 +1,39 @@
 {% extends 'base.html' %}
 {% block body %}
+  	<div class = "container" >
+  		<div class="jumbotron" id = "daTitle" >
+         	<h1 id = "projectTitle"> {{project.title}} </h1>
+         	<p class = "lead"> {{project.lead}} </p>
+         </div>
+       
+
+       <div class = "col-xs-8">
+         <h2>Project Objectives</h2>
+          <p id = "project Objectives">{{project.description}}</p>
+         <h2>Technical Objectives</h2>
+         	<p id = "technicalObjectives">{{project.tech_objectives}}</p>
+         <p id = "github"> {{project.github}} </p>	
+        </div>
+
+        <div class  = "col-xs-4">
+          <div id = "numbers">
+        	 <h1>{{project.num_days}}</h1>
+        		<p>Days in progress</p>
+        		<h1>{{project.num_commits}}</h1>
+        		<p>Git commits</p>
+        		<h1>{{project.num_contributors}}</h1>
+        		<p>People Involved</p>
+        		<center> <p><a class="btn btn-primary btn-lg" role="button">Join the Team</a></p>
+              <center> <p><a class="btn btn-primary btn-lg" role="button">Contribute Code</a></p>
+            </div>
+           </div>
+    </div>
+{% endblock body %}
+
+<!--
   <p>Title: {{ project.title }}</p>
   <p>Description: {{ project.description }}</p>
   <p>Created: {{ project.created_date }}</p>
   <p>Updated: {{ project.updated_date }}</p>
   <p><a href='{{ edit_link }}'>Edit</a></p>
-{% endblock body %}
+-->

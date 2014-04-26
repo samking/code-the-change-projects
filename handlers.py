@@ -7,16 +7,35 @@ from google.appengine.ext import ndb
 from helpers import templates
 from models import project
 
-
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
 
     def get(self):
         """Renders the main landing page in response to a GET request."""
+        values = {
+          'login_url': users.create_login_url('/dashboard'),
+          'logout_url': users.create_logout_url('/')
+        }
+        self.response.write(templates.render('main.html', values))
+
+class DisplayDashboard(webapp2.RequestHandler):
+    """The handler for displaying a which projects the user is working on"""
+    def get(self):
+        """Renders the dashboard corresponding to the logged in user"""
         user = users.get_current_user()
         if user:
-            values = {'email': user.email()}
-            self.response.write(templates.render('main.html', values))
+            values = {
+              'logout_url' : users.create_logout_url('/'),
+              'own': [
+                {'title': 'awesome project', 'id': '1'}, 
+                {'title': 'awesomer project', 'id': '2'},
+              ],
+              'contributing': [
+                {'title': 'pandas need my help', 'id':'3'}, 
+                {'title': 'fixing education', 'id':'4'},
+              ],
+            }
+            self.response.write(templates.render('dashboard.html', values))
         else:
             self.redirect(users.create_login_url(self.request.uri))
 
@@ -75,11 +94,14 @@ class NewProject(webapp2.RequestHandler):
         """Renders the new project page in response to a GET request."""
         values = {
             'action': 'Create New', 'action_link': self.uri_for(NewProject)}
-        self.response.write(templates.render('edit_project.html', values))
+        self.response.write(templates.render('new_project.html', values))
 
     def post(self):
         """Accepts a request to create a new project."""
         new_project = project.Project(
             title=self.request.get('title'),
+            lead=self.request.get('lead'),
+            tech_objectives=self.request.get('tech_objectives'),
+            github=self.request.get('github'),
             description=self.request.get('description')).put()
         self.redirect_to(DisplayProject, project_id=new_project.id())

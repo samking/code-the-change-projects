@@ -5,6 +5,14 @@ from google.appengine.ext import ndb
 class Project(ndb.Model):
     """A model for one project."""
     title = ndb.StringProperty(required=True)
+    lead = ndb.TextProperty(required=True)
+    tech_objectives = ndb.TextProperty(required=True)
+    github = ndb.TextProperty(required=True)
+    
+    num_days = ndb.IntegerProperty(required=False, default=0)
+    num_commits = ndb.IntegerProperty(required=False, default=0)
+    num_contributors = ndb.IntegerProperty(required=False, default =0)
+    
     description = ndb.TextProperty(required=True)
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
     updated_date = ndb.DateTimeProperty(required=True, auto_now=True)
