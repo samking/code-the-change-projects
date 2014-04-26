@@ -6,11 +6,18 @@ body {
   padding-bottom: 40px;
 }
 
-#header-wrapper {
+#header-wrapper,
+#main-content {
   width: 80%;
   margin: 0 auto;
 }
 
+/* TODO(samking): Move these rules to specific files since they're only used in
+ * one page. */
 .project-form .input-group {
-	width: 90%;
+  width: 90%;
+}
+
+#project-header .jumbotron {
+  border-radius: 6px;
 }

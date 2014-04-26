@@ -2,26 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="description" content="A database that matches nonprofits with computer scientists">
+  <meta name="author" content="https://codethechange.org/contact">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="">
-  <meta name="author" content="">
 
-  <title>Code the Change</title>
-    {% include 'analytics.html' %}
+  <title>Code the Change Projects</title>
 
-  <!-- Bootstrap core CSS -->
   <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/css/global.css" rel="stylesheet">
+
   <script src="/static/js/jquery-1.10.2.min.js"></script>
   <script src="/static/js/bootstrap.min.js"></script>
 
-  <link rel="stylesheet" href="/static/css/global.css">
   {% block custom_header %}{% endblock %}
+  {% include "analytics.html" %}
 </head>
 <body>
   {% include "header.html" %}
-  <div class="container">
-    {% block body %}Content Body{% endblock %}
+  <div id="main-content">
+    {% block body %}{% endblock %}
   </div>
 </body>
 </html>
