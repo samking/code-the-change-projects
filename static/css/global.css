@@ -1,3 +1,11 @@
+/* Global styles to set default properties of certain elements for all pages. */
+
+body {
+  /* The last element on the page shouldn't be flush with the bottom because
+   * that would feel cramped. */
+  padding-bottom: 40px;
+}
+
 #header-wrapper {
   width: 80%;
   margin: 0 auto;
