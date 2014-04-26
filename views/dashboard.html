@@ -1,19 +1,16 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block body %}
+  <h2>Projects I Own</h2>
+  <ul class="list-unstyled owned-list">
+    {% for project in own %}
+      <li><a href="/project/{{ project.id }}">{{ project.title }}</a></li>
+    {% endfor %}
+  </ul>
 
-<h2>Projects I Own</h2>
-<ul class="list-unstyled owned-list">
-{% for p in own %}
-  <li><a href="/project/{{p.id}}">{{p.title}}</a></li>
-{% endfor %}
-</ul>
-
-<h2>Project I'm Contributing To</h2>
-<ul class="list-unstyled owned-list">
-{% for p in contributing %}
-  <li><a href="/project/{{p.id}}">{{p.title}}</a></li>
-{% endfor %}
-</ul>
-
-
+  <h2>Project I'm Contributing To</h2>
+  <ul class="list-unstyled owned-list">
+    {% for project in contributing %}
+      <li><a href="/project/{{ project.id }}">{{ project.title }}</a></li>
+    {% endfor %}
+  </ul>
 {% endblock body %}

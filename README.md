@@ -37,7 +37,7 @@ A projects database for projects at the intersection of CS and social change.
 * Install `NoseGAE` (a nose plugin for Google App Engine that sets up the
   app engine environment and runs tests):
   `sudo easy_install NoseGAE` in Ubuntu.
-* Install `webtest` (an integration testing framework for webapps): 
+* Install `webtest` (an integration testing framework for webapps):
   `sudo easy-install webtest` in Ubuntu.
 * Now, whenever you want to run tests, all you have to do is run
   `scripts/test.py` (which will run nosetests for you, looking up your app

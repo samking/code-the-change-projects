@@ -30,11 +30,11 @@ class DisplayDashboard(webapp2.RequestHandler):
             values = {
               'logout_url' : users.create_logout_url('/'),
               'own': [
-                {'title': 'awesome project', 'id': '1'}, 
+                {'title': 'awesome project', 'id': '1'},
                 {'title': 'awesomer project', 'id': '2'},
               ],
               'contributing': [
-                {'title': 'pandas need my help', 'id':'3'}, 
+                {'title': 'pandas need my help', 'id':'3'},
                 {'title': 'fixing education', 'id':'4'},
               ],
             }
@@ -63,7 +63,7 @@ class EditProject(webapp2.RequestHandler):
         edit_link = self.uri_for(EditProject, project_id=project_id)
         values = {
             'project': project_to_edit, 'action_link': edit_link,
-            'action': 'Edit'}
+            'action': 'Edit Your'}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self, project_id):
@@ -94,8 +94,8 @@ class NewProject(webapp2.RequestHandler):
     def get(self):
         """Renders the new project page in response to a GET request."""
         values = {
-            'action': 'Create New', 'action_link': self.uri_for(NewProject)}
-        self.response.write(templates.render('new_project.html', values))
+            'action': 'Create a New', 'action_link': self.uri_for(NewProject)}
+        self.response.write(templates.render('edit_project.html', values))
 
     def post(self):
         """Accepts a request to create a new project."""
