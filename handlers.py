@@ -29,19 +29,22 @@ def require_login(request_func):
     return new_request_func
 
 
+
 class MainPage(webapp2.RequestHandler):
     """The handler for the root page."""
 
     def get(self):
         """Renders the main landing page in response to a GET request."""
         values = {
-          'login_url': users.create_login_url('/dashboard'),
-          'logout_url': users.create_logout_url('/')
+            'login_url': users.create_login_url('/dashboard'),
+            'logout_url': users.create_logout_url('/')
         }
         self.response.write(templates.render('main.html', values))
 
+
 class DisplayDashboard(webapp2.RequestHandler):
     """The handler for displaying a which projects the user is working on"""
+
     def get(self):
         """Renders the dashboard corresponding to the logged in user"""
         user = users.get_current_user()
@@ -88,9 +91,7 @@ class EditProject(webapp2.RequestHandler):
     def post(self, project_id):
         """Edits the provided project."""
         project_to_edit = ndb.Key(project.Project, int(project_id)).get()
-        project_to_edit.title = self.request.get('title')
-        project_to_edit.description = self.request.get('description')
-        project_to_edit.put()
+        project_to_edit.populate(self.request).put()
         self.redirect_to(DisplayProject, project_id=project_id)
 
 
@@ -103,8 +104,8 @@ class ListProjects(webapp2.RequestHandler):
         projects = query.fetch()
         links = []
         for curr_project in projects:
-            links.append(self.uri_for(
-                DisplayProject, project_id=curr_project.key.id()))
+            project_id = curr_project.key.id()
+            links.append(self.uri_for(DisplayProject, project_id=project_id))
         values = {'projects_and_links': zip(projects, links)}
         self.response.write(templates.render('list_projects.html', values))
 
@@ -122,15 +123,9 @@ class NewProject(webapp2.RequestHandler):
     def post(self):
         """Accepts a request to create a new project."""
         current_user_key = user_model.get_current_user_key()
-        new_project = project.Project(
-            title=self.request.get('title'),
-            description=self.request.get('description'),
-            owner_key=current_user_key,
-            lead=self.request.get('lead'),
-            tech_objectives=self.request.get('tech_objectives'),
-            github=self.request.get('github'),
-            description=self.request.get('description')).put()
-        self.redirect_to(DisplayProject, project_id=new_project.id())
+        new_project = project.Project().populate(self, current_user_key)
+        new_project_key = new_project.put()
+        self.redirect_to(DisplayProject, project_id=new_project_key.id())
 
 
 class JoinProject(webapp2.RequestHandler):
