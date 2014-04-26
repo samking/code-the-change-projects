@@ -8,30 +8,19 @@ import unittest
 
 import webtest
 
-from google.appengine.ext import testbed
-
 import server
 from models import project
 from testing import model_helpers
+from testing import testutil
 
 # Tests don't need docstrings, so pylint: disable=C0111
-
-class FunctionalTests(unittest.TestCase):
+class FunctionalTests(testutil.CtcTestCase):
     """Test cases for handlers."""
 
     def setUp(self):
         super(FunctionalTests, self).setUp()
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
-        # It's annoying to have to figure out the right stub while you're
-        # writing tests, so initialize ALL the stubs!
-        self.testbed.init_all_stubs()
         self.testapp = webtest.TestApp(server.APP)
 
-    def tearDown(self):
-        super(FunctionalTests, self).tearDown()
-        self.testbed.deactivate()
-    
     def test_get_new_project(self):
         response = self.testapp.get('/project/new')
         self.assertEqual(response.status_int, 200)
@@ -92,7 +81,6 @@ class FunctionalTests(unittest.TestCase):
         self.assertIn('hello', project_page.body)
         self.assertIn('world', project_page.body)
         
-
     def test_get_main_page(self):
         self.testbed.setup_env(
             USER_EMAIL = 'test@codethechange.org', 
