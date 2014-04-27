@@ -14,7 +14,7 @@ class ProjectTests(testutil.CtcTestCase):
                   'lead': 'lead', 'tech_objectives': 'tech_objectives',
                   'github': 'github'}
         project = project_model.Project()
-        populated_project = project.populate(fields)
+        populated_project = project.populate(fields, submitting_user=123)
         self.assertEqual(project, populated_project)
         self.assertEqual(project.title, 'title')
         self.assertEqual(project.description, 'description')

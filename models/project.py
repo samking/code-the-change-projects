@@ -17,7 +17,7 @@ class Project(ndb.Model):
     github = ndb.TextProperty(required=True)
 
     num_commits = ndb.IntegerProperty(required=False, default=0)
-    num_contributors = ndb.IntegerProperty(required=False, default =0)
+    num_contributors = ndb.IntegerProperty(required=False, default=0)
 
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
     updated_date = ndb.DateTimeProperty(required=True, auto_now=True)

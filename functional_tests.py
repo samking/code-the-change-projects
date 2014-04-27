@@ -83,9 +83,9 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_get_main_page(self):
         self.testbed.setup_env(
-            USER_EMAIL = 'test@codethechange.org',
-            USER_ID = '123',
-            overwrite = True)
+            USER_EMAIL='test@codethechange.org',
+            USER_ID='123',
+            overwrite=True)
         main_page = self.testapp.get('/')
         self.assertEqual(main_page.status_int, 200)
         self.assertIn('Code the Change', main_page.body)

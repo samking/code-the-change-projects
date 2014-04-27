@@ -20,9 +20,14 @@
         <p>Git commits</p>
         <h1>{{ project.num_contributors }}</h1>
         <p>People Involved</p>
-        <p><a class="btn btn-primary btn-lg" role="button">Join the Team</a></p>
+
+        <form action='{{ action_link }}' method='post'>
+            <div><input class="btn btn-primary btn-lg" type='submit' value='{{ action }} the Team'></div>
+        </form>
         <p><a class="btn btn-primary btn-lg" role="button">Contribute Code</a></p>
       </div>
     </div>
   </div> {# project-header #}
 {% endblock body %}
+
+

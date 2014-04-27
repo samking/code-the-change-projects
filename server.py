@@ -30,8 +30,7 @@ APP = webapp2.WSGIApplication([
     named_route(r'/project/<project_id:\d+>', handlers.DisplayProject),
     named_route(r'/project/<project_id:\d+>/edit', handlers.EditProject),
     named_route(r'/project/<project_id:\d+>/join', handlers.JoinProject),
+    named_route(r'/project/<project_id:\d+>/leave', handlers.LeaveProject),
     named_route(r'/project/new', handlers.NewProject),
-    named_route(r'/notloggedin', handlers.NotLoggedIn),
     named_route(r'/dashboard', handlers.DisplayDashboard),
-    named_route(r'/notloggedin', handlers.NotLoggedIn),
 ], debug=IS_DEV)

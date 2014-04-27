@@ -21,10 +21,10 @@ def require_login(request_func):
     A function that will execute request_func only if the user is logged in.
   """
     @wraps(request_func)
-    def new_request_func(self):
+    def new_request_func(self, *args, **kwargs):
         """Redirects logged out users to the login page."""
         if users.get_current_user():
-            return request_func(self)
+            return request_func(self, *args, **kwargs)
         else:
             self.redirect(users.create_login_url(self.request.uri))
     return new_request_func
@@ -44,24 +44,39 @@ class MainPage(webapp2.RequestHandler):
 class DisplayDashboard(webapp2.RequestHandler):
     """The handler for displaying a which projects the user is working on"""
 
+    @require_login
     def get(self):
         """Renders the dashboard corresponding to the logged in user"""
-        user = users.get_current_user()
-        if user:
-            values = {
-              'logout_url' : users.create_logout_url('/'),
-              'own': [
-                {'title': 'awesome project', 'id': '1'},
-                {'title': 'awesomer project', 'id': '2'},
+        user_key = user_model.get_current_user_key()
+
+        query = project.Project.query(project.Project.owner_key == user_key)\
+            .order(project.Project.updated_date)
+        owned_projects = query.fetch()
+        query = collaborator.Collaborator.query(
+            collaborator.Collaborator.user_key == user_key)\
+            .order(collaborator.Collaborator.created_date)
+        collaborations = query.fetch()
+        contributing_projects = []
+        for collaboration in collaborations:
+            contributing_projects.append(
+                project.Project.query(
+                    project.Project.key.id() == collaboration.project_key
+                ).fetch()[0]
+            )
+
+        values = {
+              'logout_url': users.create_logout_url('/'),
+              'own': [{'title': owned_project.title,
+                       'id': owned_project.key.id()}
+                       for owned_project in owned_projects
               ],
               'contributing': [
-                {'title': 'pandas need my help', 'id':'3'},
-                {'title': 'fixing education', 'id':'4'},
-              ],
-            }
-            self.response.write(templates.render('dashboard.html', values))
-        else:
-            self.redirect(users.create_login_url(self.request.uri))
+                  {'title': contributing_project.title,
+                   'id': contributing_project.key.id()}
+                  for contributing_project in contributing_projects
+              ]
+        }
+        self.response.write(templates.render('dashboard.html', values))
 
 
 class DisplayProject(webapp2.RequestHandler):
@@ -71,7 +86,25 @@ class DisplayProject(webapp2.RequestHandler):
         """Renders the project page in response to a GET request."""
         project_to_display = ndb.Key(project.Project, int(project_id)).get()
         edit_link = self.uri_for(EditProject, project_id=project_id)
-        values = {'project': project_to_display, 'edit_link': edit_link}
+
+        user_key = user_model.get_current_user_key()
+        if (user_key and len(collaborator.Collaborator.query(
+            ndb.AND(collaborator.Collaborator.project_key ==
+                        ndb.Key(project.Project, int(project_id)),
+                    collaborator.Collaborator.user_key == user_key)
+        ).fetch()) == 1):
+            action = "Leave"
+            action_link = self.uri_for(LeaveProject, project_id=project_id)
+        else:
+            action = "Join"
+            action_link = self.uri_for(JoinProject, project_id=project_id)
+
+
+        values = {'project': project_to_display,
+                  'edit_link': edit_link,
+                  'action_link': action_link,
+                  'action': action
+        }
         self.response.write(templates.render('display_project.html', values))
 
 
@@ -122,21 +155,12 @@ class NewProject(webapp2.RequestHandler):
     def post(self):
         """Accepts a request to create a new project."""
         current_user_key = user_model.get_current_user_key()
-        new_project = project.Project().populate(self, current_user_key)
+        new_project = project.Project().populate(self.request, current_user_key)
         new_project_key = new_project.put()
         self.redirect_to(DisplayProject, project_id=new_project_key.id())
 
 class JoinProject(webapp2.RequestHandler):
     """Handler for a request to join a project."""
-
-    def get(self, project_id):
-        """Renders a join page in response to a GET request."""
-        project_to_edit = ndb.Key(project.Project, int(project_id)).get()
-        edit_link = self.uri_for(JoinProject, project_id=project_id)
-        values = {
-            'project': project_to_edit, 'action_link': edit_link,
-            'action': 'Join'}
-        self.response.write(templates.render('join_project.html', values))
 
     @require_login
     def post(self, project_id):
@@ -144,6 +168,22 @@ class JoinProject(webapp2.RequestHandler):
         current_user_key = user_model.get_current_user_key()
         collaborator.Collaborator(
             user_key=current_user_key,
-            project_key=ndb.Key(project.Project, project_id)).put()
+            project_key=ndb.Key(project.Project, int(project_id))).put()
         self.redirect_to(DisplayProject, project_id=project_id)
 
+
+class LeaveProject(webapp2.RequestHandler):
+    """Handler for a request to leave a project."""
+
+    @require_login
+    def post(self, project_id):
+        """Accepts a request to leave a project."""
+        current_user_key = user_model.get_current_user_key()
+        query = collaborator.Collaborator.query(
+            ndb.AND(collaborator.Collaborator.user_key == current_user_key,
+                    collaborator.Collaborator.project_key ==
+                    ndb.Key(project.Project, int(project_id))))
+        collaboration_to_delete = query.fetch()
+        if len(collaboration_to_delete == 1):
+            collaboration_to_delete[0].key.delete()
+        self.redirect_to(DisplayProject, project_id=project_id)
