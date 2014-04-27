@@ -80,20 +80,16 @@ class DisplayProject(webapp2.RequestHandler):
         """Renders the project page in response to a GET request."""
         project_to_display = ndb.Key(project.Project, int(project_id)).get()
         edit_link = self.uri_for(EditProject, project_id=project_id)
-
         user_key = user_model.get_current_user_key()
-        if (user_key and len(collaborator.Collaborator.query(
-            ndb.AND(collaborator.Collaborator.project_key ==
-                        ndb.Key(project.Project, int(project_id)),
-                    collaborator.Collaborator.user_key == user_key)
-        ).fetch()) == 1):
-            action = "Leave"
+        is_collaborating = collaborator.get_collaboration(
+            user_key, project_to_display.key)
+        if user_key and is_collaborating:
+            action = 'Leave'
             action_link = self.uri_for(LeaveProject, project_id=project_id)
         else:
-            action = "Join"
+            # TODO(samking): This doesn't quite work for logged-out users.
+            action = 'Join'
             action_link = self.uri_for(JoinProject, project_id=project_id)
-
-
         values = {'project': project_to_display,
                   'edit_link': edit_link,
                   'action_link': action_link,
@@ -105,6 +101,7 @@ class DisplayProject(webapp2.RequestHandler):
 class EditProject(webapp2.RequestHandler):
     """The handler for editing a project."""
 
+    @require_login
     def get(self, project_id):
         """Renders the edit project page in response to a GET request."""
         project_to_edit = ndb.Key(project.Project, int(project_id)).get()
@@ -114,6 +111,7 @@ class EditProject(webapp2.RequestHandler):
             'action': 'Edit Your'}
         self.response.write(templates.render('edit_project.html', values))
 
+    @require_login
     def post(self, project_id):
         """Edits the provided project."""
         project_to_edit = ndb.Key(project.Project, int(project_id)).get()
@@ -139,6 +137,7 @@ class ListProjects(webapp2.RequestHandler):
 class NewProject(webapp2.RequestHandler):
     """The handler for a new project."""
 
+    @require_login
     def get(self):
         """Renders the new project page in response to a GET request."""
         values = {
@@ -161,6 +160,8 @@ class JoinProject(webapp2.RequestHandler):
     def post(self, project_id):
         """Accepts a request to join a project."""
         current_user_key = user_model.get_current_user_key()
+        # TODO(samking): ensure that there's at most one collaborator per user
+        # and project.
         collaborator.Collaborator(
             user_key=current_user_key,
             project_key=ndb.Key(project.Project, int(project_id))).put()
@@ -174,11 +175,8 @@ class LeaveProject(webapp2.RequestHandler):
     def post(self, project_id):
         """Accepts a request to leave a project."""
         current_user_key = user_model.get_current_user_key()
-        query = collaborator.Collaborator.query(
-            ndb.AND(collaborator.Collaborator.user_key == current_user_key,
-                    collaborator.Collaborator.project_key ==
-                    ndb.Key(project.Project, int(project_id))))
-        collaboration_to_delete = query.fetch()
-        if len(collaboration_to_delete == 1):
-            collaboration_to_delete[0].key.delete()
+        collaboration = collaborator.get_collaboration(
+            current_user_key, ndb.Key(project.Project, int(project_id)))
+        if collaboration:
+            collaboration.key.delete()
         self.redirect_to(DisplayProject, project_id=project_id)
