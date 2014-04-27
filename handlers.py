@@ -23,7 +23,7 @@ def require_login(request_func):
 
     Returns:
         A function that will execute request_func only if the user is logged in.
-  """
+    """
     @wraps(request_func)
     def new_request_func(self, *args, **kwargs):
         """Redirects logged out users to the login page."""
@@ -53,31 +53,22 @@ class DisplayDashboard(webapp2.RequestHandler):
     def get(self):
         """Renders the dashboard corresponding to the logged in user"""
         user_key = user_model.get_current_user_key()
-        query = project.Project.query(project.Project.owner_key == user_key)\
-            .order(project.Project.updated_date)
+        # Get the most recent projects that the current user owns.
+        query = project.Project.query(project.Project.owner_key == user_key)
+        query = query.order(-project.Project.updated_date)
         owned_projects = query.fetch()
+        # Get the most recent projects that the current user is contributing to.
         query = collaborator.Collaborator.query(
-            collaborator.Collaborator.user_key == user_key)\
-            .order(collaborator.Collaborator.created_date)
+            collaborator.Collaborator.user_key == user_key)
+        query = query.order(-collaborator.Collaborator.created_date)
         collaborations = query.fetch()
         contributing_projects = []
         for collaboration in collaborations:
-            contributing_projects.append(
-                project.Project.query(
-                    project.Project.key.id() == collaboration.project_key
-                ).fetch()[0]
-            )
+            contributing_projects.append(collaboration.project_key.get())
         values = {
-              'logout_url': users.create_logout_url('/'),
-              'own': [{'title': owned_project.title,
-                       'id': owned_project.key.id()}
-                       for owned_project in owned_projects
-              ],
-              'contributing': [
-                  {'title': contributing_project.title,
-                   'id': contributing_project.key.id()}
-                  for contributing_project in contributing_projects
-              ]
+            'logout_url': users.create_logout_url('/'),
+            'own': owned_projects,
+            'contributing': contributing_projects
         }
         self.response.write(templates.render('dashboard.html', values))
 
