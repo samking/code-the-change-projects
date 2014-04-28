@@ -10,6 +10,7 @@ import webtest
 
 import server
 from models import project as project_model
+from models import user as user_model
 from testing import model_helpers
 from testing import testutil
 
@@ -21,7 +22,18 @@ class FunctionalTests(testutil.CtcTestCase):
         super(FunctionalTests, self).setUp()
         self.testapp = webtest.TestApp(server.APP)
 
+    def login(self):
+        """Creates a user, logs in, and returns the user."""
+        user = user_model.User()
+        user.put()
+        self.testbed.setup_env(
+            USER_EMAIL='test@codethechange.org',
+            USER_ID=str(user.key.id()),
+            overwrite=True)
+        return user
+
     def test_get_new_project(self):
+        self.login()
         response = self.testapp.get('/project/new')
         self.assertEqual(response.status_int, 200)
         # It should have the POST link.
@@ -31,6 +43,7 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('Description', response.body)
 
     def test_post_new_project(self):
+        self.login()
         # There should be no projects to start.
         self.assertEqual(project_model.Project.query().count(), 0)
         response = self.testapp.post('/project/new', {
@@ -55,6 +68,7 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('world', response.body)
 
     def test_get_edit_project(self):
+        self.login()
         project_to_edit = model_helpers.create_project('hello', 'world')
         project_id = project_to_edit.key.id()
         edit_page = self.testapp.get('/project/%d/edit' % project_id)
@@ -63,6 +77,7 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('world', edit_page.body)
 
     def test_post_edit_project(self):
+        self.login()
         project_to_edit = model_helpers.create_project('hello', 'world')
         project_id = project_to_edit.key.id()
         response = self.testapp.post(
@@ -73,6 +88,10 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertEqual(edited_project.title, 'goodbye')
         self.assertEqual(edited_project.description, '')
 
+    def test_only_creator_can_edit_project(self):
+        # TODO(samking): implement
+        pass
+
     def test_display_project(self):
         project_to_display = model_helpers.create_project('hello', 'world')
         project_id = project_to_display.key.id()
@@ -82,10 +101,6 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('world', project_page.body)
 
     def test_get_main_page(self):
-        self.testbed.setup_env(
-            USER_EMAIL='test@codethechange.org',
-            USER_ID='123',
-            overwrite=True)
         main_page = self.testapp.get('/')
         self.assertEqual(main_page.status_int, 200)
         self.assertIn('Code the Change', main_page.body)
