@@ -24,6 +24,5 @@ class CollaboratorTests(testutil.CtcTestCase):
             collaborator)
 
 
-
 if __name__ == '__main__':
     unittest.main()
