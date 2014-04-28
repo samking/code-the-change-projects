@@ -4,37 +4,22 @@ import webapp2
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
-from functools import wraps
-
 from helpers import templates
-
 from models import collaborator as collaborator_model
 from models import project
 from models import user as user_model
 
 
-def require_login(request_func):
-    """Decorator: only handle the provided request if the user is logged in.
+class BaseHandler(webapp2.RequestHandler):
+    """Superclass for all CtC handlers."""
 
-    Redirects to the login page if the user is not logged in.
-
-    Args:
-       request_func: function. A function that handles a request.
-
-    Returns:
-        A function that will execute request_func only if the user is logged in.
-    """
-    @wraps(request_func)
-    def new_request_func(self, *args, **kwargs):
-        """Redirects logged out users to the login page."""
-        if users.get_current_user():
-            return request_func(self, *args, **kwargs)
-        else:
-            self.redirect(users.create_login_url(self.request.uri))
-    return new_request_func
+    def require_login(self):
+        """Redirect to the login page and abort if the user is not logged in."""
+        if not users.get_current_user():
+            self.redirect(users.create_login_url(self.request.uri), abort=True)
 
 
-class MainPage(webapp2.RequestHandler):
+class MainPage(BaseHandler):
     """The handler for the root page."""
 
     def get(self):
@@ -46,12 +31,12 @@ class MainPage(webapp2.RequestHandler):
         self.response.write(templates.render('main.html', values))
 
 
-class DisplayDashboard(webapp2.RequestHandler):
+class DisplayDashboard(BaseHandler):
     """The handler for displaying a which projects the user is working on"""
 
-    @require_login
     def get(self):
         """Renders the dashboard corresponding to the logged in user"""
+        self.require_login()
         user_key = user_model.get_current_user_key()
         # Get the most recent projects that the current user owns.
         query = project.Project.query(project.Project.owner_key == user_key)
@@ -73,7 +58,7 @@ class DisplayDashboard(webapp2.RequestHandler):
         self.response.write(templates.render('dashboard.html', values))
 
 
-class DisplayProject(webapp2.RequestHandler):
+class DisplayProject(BaseHandler):
     """The handler for displaying a project."""
 
     def get(self, project_id):
@@ -98,7 +83,7 @@ class DisplayProject(webapp2.RequestHandler):
         self.response.write(templates.render('display_project.html', values))
 
 
-class EditProject(webapp2.RequestHandler):
+class EditProject(BaseHandler):
     """The handler for editing a project."""
 
     def require_project_owner(self, project_to_edit):
@@ -107,9 +92,9 @@ class EditProject(webapp2.RequestHandler):
         if current_user_key != project_to_edit.owner_key:
             self.abort(403)
 
-    @require_login
     def get(self, project_id):
         """Renders the edit project page in response to a GET request."""
+        self.require_login()
         project_to_edit = ndb.Key(project.Project, int(project_id)).get()
         self.require_project_owner(project_to_edit)
         edit_link = self.uri_for(EditProject, project_id=project_id)
@@ -118,16 +103,16 @@ class EditProject(webapp2.RequestHandler):
             'action': 'Edit Your'}
         self.response.write(templates.render('edit_project.html', values))
 
-    @require_login
     def post(self, project_id):
         """Edits the provided project."""
+        self.require_login()
         project_to_edit = ndb.Key(project.Project, int(project_id)).get()
         self.require_project_owner(project_to_edit)
         project_to_edit.populate(self.request).put()
         self.redirect_to(DisplayProject, project_id=project_id)
 
 
-class ListProjects(webapp2.RequestHandler):
+class ListProjects(BaseHandler):
     """The handler for the projects list."""
 
     def get(self):
@@ -142,19 +127,19 @@ class ListProjects(webapp2.RequestHandler):
         self.response.write(templates.render('list_projects.html', values))
 
 
-class NewProject(webapp2.RequestHandler):
+class NewProject(BaseHandler):
     """The handler for a new project."""
 
-    @require_login
     def get(self):
         """Renders the new project page in response to a GET request."""
+        self.require_login()
         values = {
             'action': 'Create a New', 'action_link': self.uri_for(NewProject)}
         self.response.write(templates.render('edit_project.html', values))
 
-    @require_login
     def post(self):
         """Accepts a request to create a new project."""
+        self.require_login()
         current_user_key = user_model.get_current_user_key()
         new_project = project.Project().populate(self.request)
         new_project.owner_key = current_user_key
@@ -162,12 +147,12 @@ class NewProject(webapp2.RequestHandler):
         self.redirect_to(DisplayProject, project_id=new_project_key.id())
 
 
-class JoinProject(webapp2.RequestHandler):
+class JoinProject(BaseHandler):
     """Handler for a request to join a project."""
 
-    @require_login
     def post(self, project_id):
         """Accepts a request to join a project."""
+        self.require_login()
         current_user_key = user_model.get_current_user_key()
         # TODO(samking): ensure that there's at most one collaborator per user
         # and project.
@@ -177,12 +162,12 @@ class JoinProject(webapp2.RequestHandler):
         self.redirect_to(DisplayProject, project_id=project_id)
 
 
-class LeaveProject(webapp2.RequestHandler):
+class LeaveProject(BaseHandler):
     """Handler for a request to leave a project."""
 
-    @require_login
     def post(self, project_id):
         """Accepts a request to leave a project."""
+        self.require_login()
         current_user_key = user_model.get_current_user_key()
         collaborator = collaborator_model.get_collaborator(
             current_user_key, ndb.Key(project.Project, int(project_id)))
