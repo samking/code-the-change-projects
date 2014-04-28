@@ -148,7 +148,8 @@ class NewProject(webapp2.RequestHandler):
     def post(self):
         """Accepts a request to create a new project."""
         current_user_key = user_model.get_current_user_key()
-        new_project = project.Project().populate(self.request, current_user_key)
+        new_project = project.Project().populate(self.request)
+        new_project.owner_key = current_user_key
         new_project_key = new_project.put()
         self.redirect_to(DisplayProject, project_id=new_project_key.id())
 

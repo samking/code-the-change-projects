@@ -28,7 +28,7 @@ class Project(ndb.Model):
     # is_completed = ndb.BooleanProperty(required=True, default=False)
     # page_views = ndb.IntegerProperty(required=True, default=0)
 
-    def populate(self, request, submitting_user):
+    def populate(self, request):
         """Populates the fields in a project from a web request.
 
         Args:
@@ -42,5 +42,4 @@ class Project(ndb.Model):
             'title', 'description', 'lead', 'tech_objectives', 'github']
         for field in settable_fields:
             setattr(self, field, request.get(field))
-        setattr(self, 'owner_key', submitting_user)
         return self
