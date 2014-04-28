@@ -34,8 +34,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_get_new_project(self):
         self.login()
-        response = self.testapp.get('/project/new')
-        self.assertEqual(response.status_int, 200)
+        response = self.testapp.get('/project/new', status=200)
         # It should have the POST link.
         self.assertIn('post', response.body)
         # It should have a field for title and description.
@@ -62,47 +61,46 @@ class FunctionalTests(testutil.CtcTestCase):
     def test_list_projects(self):
         model_helpers.create_project('hello')
         model_helpers.create_project('world')
-        response = self.testapp.get('/projects')
-        self.assertEqual(response.status_int, 200)
+        response = self.testapp.get('/projects', status=200)
         self.assertIn('hello', response.body)
         self.assertIn('world', response.body)
 
     def test_get_edit_project(self):
         self.login()
-        project_to_edit = model_helpers.create_project('hello', 'world')
-        project_id = project_to_edit.key.id()
-        edit_page = self.testapp.get('/project/%d/edit' % project_id)
-        self.assertEqual(edit_page.status_int, 200)
-        self.assertIn('hello', edit_page.body)
-        self.assertIn('world', edit_page.body)
+        project = model_helpers.create_project('hello', 'world')
+        project_id = project.key.id()
+        page = self.testapp.get('/project/%d/edit' % project_id, status=200)
+        self.assertIn('hello', page.body)
+        self.assertIn('world', page.body)
 
     def test_post_edit_project(self):
         self.login()
-        project_to_edit = model_helpers.create_project('hello', 'world')
-        project_id = project_to_edit.key.id()
+        project = model_helpers.create_project('hello', 'world')
+        project_id = project.key.id()
         response = self.testapp.post(
-            '/project/%d/edit' % project_id, {'title': 'goodbye'})
-        self.assertEqual(response.status_int, 302)
+            '/project/%d/edit' % project_id, {'title': 'goodbye'}, status=302)
         self.assertTrue(response.location.endswith('/%d' % project_id))
-        edited_project = project_to_edit.key.get()
+        edited_project = project.key.get()
         self.assertEqual(edited_project.title, 'goodbye')
         self.assertEqual(edited_project.description, '')
 
     def test_only_creator_can_edit_project(self):
-        # TODO(samking): implement
-        pass
+        self.login()
+        other_user = user_model.User()
+        other_user.put()
+        project = model_helpers.create_project(owner_key=other_user.key)
+        project_id = project.key.id()
+        self.testapp.post('/project/%d/edit' % project_id, status=403)
 
     def test_display_project(self):
-        project_to_display = model_helpers.create_project('hello', 'world')
-        project_id = project_to_display.key.id()
-        project_page = self.testapp.get('/project/%d' % project_id)
-        self.assertEqual(project_page.status_int, 200)
+        project = model_helpers.create_project('hello', 'world')
+        project_id = project.key.id()
+        project_page = self.testapp.get('/project/%d' % project_id, status=200)
         self.assertIn('hello', project_page.body)
         self.assertIn('world', project_page.body)
 
     def test_get_main_page(self):
-        main_page = self.testapp.get('/')
-        self.assertEqual(main_page.status_int, 200)
+        main_page = self.testapp.get('/', status=200)
         self.assertIn('Code the Change', main_page.body)
 
     def test_analytics(self):
@@ -119,15 +117,12 @@ class FunctionalTests(testutil.CtcTestCase):
             display_project + '/join', display_project + '/leave']
         login_not_required_urls = ['/', '/projects', display_project]
         for url in login_not_required_urls:
-            page = self.testapp.get(url)
-            self.assertEqual(page.status_int, 200)
+            page = self.testapp.get(url, status=200)
         for url in login_required_get_urls:
-            page = self.testapp.get(url)
-            self.assertEqual(page.status_int, 302)
+            page = self.testapp.get(url, status=302)
             self.assertIn('Login', page.location)
         for url in login_required_post_urls:
-            page = self.testapp.post(url)
-            self.assertEqual(page.status_int, 302)
+            page = self.testapp.post(url, status=302)
             self.assertIn('Login', page.location)
 
 

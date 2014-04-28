@@ -101,10 +101,17 @@ class DisplayProject(webapp2.RequestHandler):
 class EditProject(webapp2.RequestHandler):
     """The handler for editing a project."""
 
+    def require_project_owner(self, project_to_edit):
+        """Aborts the current request if the user isn't the project's owner."""
+        current_user_key = user_model.get_current_user_key()
+        if current_user_key != project_to_edit.owner_key:
+            self.abort(403)
+
     @require_login
     def get(self, project_id):
         """Renders the edit project page in response to a GET request."""
         project_to_edit = ndb.Key(project.Project, int(project_id)).get()
+        self.require_project_owner(project_to_edit)
         edit_link = self.uri_for(EditProject, project_id=project_id)
         values = {
             'project': project_to_edit, 'action_link': edit_link,
@@ -115,6 +122,7 @@ class EditProject(webapp2.RequestHandler):
     def post(self, project_id):
         """Edits the provided project."""
         project_to_edit = ndb.Key(project.Project, int(project_id)).get()
+        self.require_project_owner(project_to_edit)
         project_to_edit.populate(self.request).put()
         self.redirect_to(DisplayProject, project_id=project_id)
 
