@@ -7,11 +7,15 @@ reports=no
 include-ids=y
 
 [MESSAGES CONTROL]
-# We don't want to see suppressed warnings, TODOs, classes with few public
-# members (like ndb.Model subclasses), classes with too many public members
-# (like tests), or modules with no member (since pylint doesn't deal with the
-# dynamic imports in ndb properties correctly).
-disable=I0011,W0511,E1101,R0903,R0904
+# We don't want to see:
+#   I0011: Suppressed warnings.
+#   W0511: TODOs.
+#   E1101: Modules with no member (since pylint doesn't deal with dynamic
+#          imports in ndb properties correctly).
+#   R0903: Too few public methods (like ndb.Model subclasses).
+#   R0904: Too many public methods (like tests).
+#   R0913: Methods with too many arguments.
+disable=I0011,W0511,E1101,R0903,R0904,R0913
 
 [BASIC]
 # Default good names plus setUp and tearDown for unit tests.
