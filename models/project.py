@@ -43,3 +43,10 @@ class Project(ndb.Model):
         for field in settable_fields:
             setattr(self, field, request.get(field))
         return self
+
+
+def get_by_owner(owner_key):
+    """Returns a list of all projects owned by the provided user."""
+    query = Project.query(Project.owner_key == owner_key)
+    query = query.order(-Project.updated_date)
+    return query.fetch()

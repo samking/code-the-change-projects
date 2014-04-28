@@ -22,3 +22,15 @@ def get_collaborator(user_key, project_key):
         Collaborator.project_key == project_key)
     collaborator = query.fetch(limit=1)
     return  collaborator[0] if collaborator else None
+
+
+def get_projects(user_key):
+    """Returns a list of all projects that the user is contributing to."""
+    query = Collaborator.query(Collaborator.user_key == user_key)
+    query = query.order(-Collaborator.created_date)
+    collaborators = query.fetch()
+    futures = []
+    for collaborator in collaborators:
+        futures.append(collaborator.project_key.get_async())
+    ndb.Future.wait_all(futures)
+    return [future.get_result() for future in futures]

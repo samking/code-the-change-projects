@@ -38,19 +38,8 @@ class DisplayDashboard(BaseHandler):
         """Renders the dashboard corresponding to the logged in user"""
         self.require_login()
         user_key = models.user.get_current_user_key()
-        # Get the most recent projects that the current user owns.
-        query = models.project.Project.query(
-            models.project.Project.owner_key == user_key)
-        query = query.order(-models.project.Project.updated_date)
-        owned_projects = query.fetch()
-        # Get the most recent projects that the current user is contributing to.
-        query = models.collaborator.Collaborator.query(
-            models.collaborator.Collaborator.user_key == user_key)
-        query = query.order(-models.collaborator.Collaborator.created_date)
-        collaborator = query.fetch()
-        contributing_projects = []
-        for collaborator in collaborator:
-            contributing_projects.append(collaborator.project_key.get())
+        owned_projects = models.project.get_by_owner(user_key)
+        contributing_projects = models.collaborator.get_projects(user_key)
         values = {
             'logout_url': users.create_logout_url('/'),
             'own': owned_projects,
