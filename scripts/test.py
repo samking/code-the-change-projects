@@ -17,7 +17,7 @@ def run_tests():
     os.chdir(project_dir)
     subprocess.call(
         ['nosetests', '--with-gae', '--without-sandbox', '--gae-lib-root',
-         app_engine_dir, project_dir])
+         app_engine_dir, '--nologcapture', project_dir])
 
 
 if __name__ == '__main__':
