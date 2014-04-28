@@ -9,7 +9,7 @@ import unittest
 import webtest
 
 import server
-from models import project
+from models import project as project_model
 from testing import model_helpers
 from testing import testutil
 
@@ -32,14 +32,14 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_post_new_project(self):
         # There should be no projects to start.
-        self.assertEqual(project.Project.query().count(), 0)
+        self.assertEqual(project_model.Project.query().count(), 0)
         response = self.testapp.post('/project/new', {
             'title': 'test_title', 'description': 'test_description'})
         # There should be a new project created.
-        self.assertEqual(project.Project.query().count(), 1)
+        self.assertEqual(project_model.Project.query().count(), 1)
         # It should redirect to the page displaying the project.
         self.assertEqual(response.status_int, 302)
-        new_project = project.Project.query().fetch()[0]
+        new_project = project_model.Project.query().fetch()[0]
         self.assertTrue(
             response.location.endswith('/%d' % new_project.key.id()))
         # The project should have the corect title and description.
@@ -91,8 +91,29 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('Code the Change', main_page.body)
 
     def test_analytics(self):
-        page = self.testapp.get('/projects')
+        page = self.testapp.get('/')
         self.assertIn('google-analytics', page)
+
+    def test_login_required(self):
+        project = model_helpers.create_project()
+        display_project = '/project/%d' % project.key.id()
+        login_required_get_urls = [
+            '/dashboard', '/project/new', display_project + '/edit']
+        login_required_post_urls = [
+            '/project/new', display_project + '/edit',
+            display_project + '/join', display_project + '/leave']
+        login_not_required_urls = ['/', '/projects', display_project]
+        for url in login_not_required_urls:
+            page = self.testapp.get(url)
+            self.assertEqual(page.status_int, 200)
+        for url in login_required_get_urls:
+            page = self.testapp.get(url)
+            self.assertEqual(page.status_int, 302)
+            self.assertIn('Login', page.location)
+        for url in login_required_post_urls:
+            page = self.testapp.post(url)
+            self.assertEqual(page.status_int, 302)
+            self.assertIn('Login', page.location)
 
 
 if __name__ == '__main__':
