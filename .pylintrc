@@ -20,3 +20,12 @@ disable=I0011,W0511,E1101,R0903,R0904,R0913
 [BASIC]
 # Default good names plus setUp and tearDown for unit tests.
 good-names=setUp,tearDown,i,j,k,ex,Run,_
+
+# We're okay with functions, methods, attributes, arguments, and variables with
+# really long names.
+function-rgx=[a-z_][a-z0-9_]{2,70}$
+method-rgx=[a-z_][a-z0-9_]{2,70}$
+attr-rgx=[a-z_][a-z0-9_]{2,70}$
+argument-rgx=[a-z_][a-z0-9_]{2,70}$
+variable-rgx=[a-z_][a-z0-9_]{2,70}$
+
