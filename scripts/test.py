@@ -15,6 +15,8 @@ def run_tests():
     project_dir = common.get_project_dir()
     # NoseGAE wants us to be in the project directory.
     os.chdir(project_dir)
+    # TODO(samking): Use https://github.com/jkrebs/nose-gae-index to
+    # automatically update indexes when unit tests are run.
     subprocess.call(
         ['nosetests', '--with-gae', '--without-sandbox', '--gae-lib-root',
          app_engine_dir, '--nologcapture', project_dir])
