@@ -8,7 +8,7 @@ from functools import wraps
 
 from helpers import templates
 
-from models import collaborator
+from models import collaborator as collaborator_model
 from models import project
 from models import user as user_model
 
@@ -58,13 +58,13 @@ class DisplayDashboard(webapp2.RequestHandler):
         query = query.order(-project.Project.updated_date)
         owned_projects = query.fetch()
         # Get the most recent projects that the current user is contributing to.
-        query = collaborator.Collaborator.query(
-            collaborator.Collaborator.user_key == user_key)
-        query = query.order(-collaborator.Collaborator.created_date)
-        collaborations = query.fetch()
+        query = collaborator_model.Collaborator.query(
+            collaborator_model.Collaborator.user_key == user_key)
+        query = query.order(-collaborator_model.Collaborator.created_date)
+        collaborator = query.fetch()
         contributing_projects = []
-        for collaboration in collaborations:
-            contributing_projects.append(collaboration.project_key.get())
+        for collaborator in collaborator:
+            contributing_projects.append(collaborator.project_key.get())
         values = {
             'logout_url': users.create_logout_url('/'),
             'own': owned_projects,
@@ -81,7 +81,7 @@ class DisplayProject(webapp2.RequestHandler):
         project_to_display = ndb.Key(project.Project, int(project_id)).get()
         edit_link = self.uri_for(EditProject, project_id=project_id)
         user_key = user_model.get_current_user_key()
-        is_collaborating = collaborator.get_collaboration(
+        is_collaborating = collaborator_model.get_collaborator(
             user_key, project_to_display.key)
         if user_key and is_collaborating:
             action = 'Leave'
@@ -171,7 +171,7 @@ class JoinProject(webapp2.RequestHandler):
         current_user_key = user_model.get_current_user_key()
         # TODO(samking): ensure that there's at most one collaborator per user
         # and project.
-        collaborator.Collaborator(
+        collaborator_model.Collaborator(
             user_key=current_user_key,
             project_key=ndb.Key(project.Project, int(project_id))).put()
         self.redirect_to(DisplayProject, project_id=project_id)
@@ -184,8 +184,8 @@ class LeaveProject(webapp2.RequestHandler):
     def post(self, project_id):
         """Accepts a request to leave a project."""
         current_user_key = user_model.get_current_user_key()
-        collaboration = collaborator.get_collaboration(
+        collaborator = collaborator_model.get_collaborator(
             current_user_key, ndb.Key(project.Project, int(project_id)))
-        if collaboration:
-            collaboration.key.delete()
+        if collaborator:
+            collaborator.key.delete()
         self.redirect_to(DisplayProject, project_id=project_id)
