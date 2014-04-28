@@ -3,7 +3,7 @@
 import unittest
 
 from testing import testutil
-from models import project as project_model
+import models.project
 
 
 # Tests don't need docstrings, so pylint: disable=C0111
@@ -13,7 +13,7 @@ class ProjectTests(testutil.CtcTestCase):
         fields = {'title': 'title', 'description': 'description',
                   'lead': 'lead', 'tech_objectives': 'tech_objectives',
                   'github': 'github'}
-        project = project_model.Project()
+        project = models.project.Project()
         populated_project = project.populate(fields)
         self.assertEqual(project, populated_project)
         self.assertEqual(project.title, 'title')

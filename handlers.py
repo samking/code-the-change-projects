@@ -4,10 +4,10 @@ import webapp2
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
+import models.collaborator
+import models.project
+import models.user
 from helpers import templates
-from models import collaborator as collaborator_model
-from models import project
-from models import user as user_model
 
 
 class BaseHandler(webapp2.RequestHandler):
@@ -37,15 +37,16 @@ class DisplayDashboard(BaseHandler):
     def get(self):
         """Renders the dashboard corresponding to the logged in user"""
         self.require_login()
-        user_key = user_model.get_current_user_key()
+        user_key = models.user.get_current_user_key()
         # Get the most recent projects that the current user owns.
-        query = project.Project.query(project.Project.owner_key == user_key)
-        query = query.order(-project.Project.updated_date)
+        query = models.project.Project.query(
+            models.project.Project.owner_key == user_key)
+        query = query.order(-models.project.Project.updated_date)
         owned_projects = query.fetch()
         # Get the most recent projects that the current user is contributing to.
-        query = collaborator_model.Collaborator.query(
-            collaborator_model.Collaborator.user_key == user_key)
-        query = query.order(-collaborator_model.Collaborator.created_date)
+        query = models.collaborator.Collaborator.query(
+            models.collaborator.Collaborator.user_key == user_key)
+        query = query.order(-models.collaborator.Collaborator.created_date)
         collaborator = query.fetch()
         contributing_projects = []
         for collaborator in collaborator:
@@ -63,11 +64,11 @@ class DisplayProject(BaseHandler):
 
     def get(self, project_id):
         """Renders the project page in response to a GET request."""
-        project_to_display = ndb.Key(project.Project, int(project_id)).get()
+        project = ndb.Key(models.project.Project, int(project_id)).get()
         edit_link = self.uri_for(EditProject, project_id=project_id)
-        user_key = user_model.get_current_user_key()
-        is_collaborating = collaborator_model.get_collaborator(
-            user_key, project_to_display.key)
+        user_key = models.user.get_current_user_key()
+        is_collaborating = models.collaborator.get_collaborator(
+            user_key, project.key)
         if user_key and is_collaborating:
             action = 'Leave'
             action_link = self.uri_for(LeaveProject, project_id=project_id)
@@ -75,7 +76,7 @@ class DisplayProject(BaseHandler):
             # TODO(samking): This doesn't quite work for logged-out users.
             action = 'Join'
             action_link = self.uri_for(JoinProject, project_id=project_id)
-        values = {'project': project_to_display,
+        values = {'project': project,
                   'edit_link': edit_link,
                   'action_link': action_link,
                   'action': action
@@ -86,29 +87,29 @@ class DisplayProject(BaseHandler):
 class EditProject(BaseHandler):
     """The handler for editing a project."""
 
-    def require_project_owner(self, project_to_edit):
+    def require_project_owner(self, project):
         """Aborts the current request if the user isn't the project's owner."""
-        current_user_key = user_model.get_current_user_key()
-        if current_user_key != project_to_edit.owner_key:
+        current_user_key = models.user.get_current_user_key()
+        if current_user_key != project.owner_key:
             self.abort(403)
 
     def get(self, project_id):
         """Renders the edit project page in response to a GET request."""
         self.require_login()
-        project_to_edit = ndb.Key(project.Project, int(project_id)).get()
-        self.require_project_owner(project_to_edit)
+        project = ndb.Key(models.project.Project, int(project_id)).get()
+        self.require_project_owner(project)
         edit_link = self.uri_for(EditProject, project_id=project_id)
         values = {
-            'project': project_to_edit, 'action_link': edit_link,
+            'project': project, 'action_link': edit_link,
             'action': 'Edit Your'}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self, project_id):
         """Edits the provided project."""
         self.require_login()
-        project_to_edit = ndb.Key(project.Project, int(project_id)).get()
-        self.require_project_owner(project_to_edit)
-        project_to_edit.populate(self.request).put()
+        project = ndb.Key(models.project.Project, int(project_id)).get()
+        self.require_project_owner(project)
+        project.populate(self.request).put()
         self.redirect_to(DisplayProject, project_id=project_id)
 
 
@@ -117,7 +118,8 @@ class ListProjects(BaseHandler):
 
     def get(self):
         """Renders the projects page in response to a GET request."""
-        query = project.Project.query().order(project.Project.updated_date)
+        query = models.project.Project.query()
+        query = query.order(models.project.Project.updated_date)
         projects = query.fetch()
         links = []
         for curr_project in projects:
@@ -140,8 +142,8 @@ class NewProject(BaseHandler):
     def post(self):
         """Accepts a request to create a new project."""
         self.require_login()
-        current_user_key = user_model.get_current_user_key()
-        new_project = project.Project().populate(self.request)
+        current_user_key = models.user.get_current_user_key()
+        new_project = models.project.Project().populate(self.request)
         new_project.owner_key = current_user_key
         new_project_key = new_project.put()
         self.redirect_to(DisplayProject, project_id=new_project_key.id())
@@ -153,12 +155,12 @@ class JoinProject(BaseHandler):
     def post(self, project_id):
         """Accepts a request to join a project."""
         self.require_login()
-        current_user_key = user_model.get_current_user_key()
+        current_user_key = models.user.get_current_user_key()
         # TODO(samking): ensure that there's at most one collaborator per user
         # and project.
-        collaborator_model.Collaborator(
+        models.collaborator.Collaborator(
             user_key=current_user_key,
-            project_key=ndb.Key(project.Project, int(project_id))).put()
+            project_key=ndb.Key(models.project.Project, int(project_id))).put()
         self.redirect_to(DisplayProject, project_id=project_id)
 
 
@@ -168,9 +170,9 @@ class LeaveProject(BaseHandler):
     def post(self, project_id):
         """Accepts a request to leave a project."""
         self.require_login()
-        current_user_key = user_model.get_current_user_key()
-        collaborator = collaborator_model.get_collaborator(
-            current_user_key, ndb.Key(project.Project, int(project_id)))
+        current_user_key = models.user.get_current_user_key()
+        collaborator = models.collaborator.get_collaborator(
+            current_user_key, ndb.Key(models.project.Project, int(project_id)))
         if collaborator:
             collaborator.key.delete()
         self.redirect_to(DisplayProject, project_id=project_id)

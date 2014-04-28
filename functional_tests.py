@@ -8,9 +8,9 @@ import unittest
 
 import webtest
 
+import models.project
+import models.user
 import server
-from models import project as project_model
-from models import user as user_model
 from testing import model_helpers
 from testing import testutil
 
@@ -24,7 +24,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def login(self):
         """Creates a user, logs in, and returns the user."""
-        user = user_model.User()
+        user = models.user.User()
         user.put()
         self.testbed.setup_env(
             USER_EMAIL='test@codethechange.org',
@@ -44,14 +44,14 @@ class FunctionalTests(testutil.CtcTestCase):
     def test_post_new_project(self):
         self.login()
         # There should be no projects to start.
-        self.assertEqual(project_model.Project.query().count(), 0)
+        self.assertEqual(models.project.Project.query().count(), 0)
         response = self.testapp.post('/project/new', {
             'title': 'test_title', 'description': 'test_description'})
         # There should be a new project created.
-        self.assertEqual(project_model.Project.query().count(), 1)
+        self.assertEqual(models.project.Project.query().count(), 1)
         # It should redirect to the page displaying the project.
         self.assertEqual(response.status_int, 302)
-        new_project = project_model.Project.query().fetch()[0]
+        new_project = models.project.Project.query().fetch()[0]
         self.assertTrue(
             response.location.endswith('/%d' % new_project.key.id()))
         # The project should have the corect title and description.
@@ -86,7 +86,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_only_creator_can_edit_project(self):
         self.login()
-        other_user = user_model.User()
+        other_user = models.user.User()
         other_user.put()
         project = model_helpers.create_project(owner_key=other_user.key)
         project_id = project.key.id()
