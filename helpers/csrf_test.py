@@ -74,7 +74,28 @@ class CsrfTests(testutil.CtcTestCase):
     # Token Is Valid
 
     def test_token_is_valid(self):
-        pass
+        self.login()
+        # Token is required.
+        self.assertFalse(helpers.csrf.token_is_valid(None))
+        # Token needs to have a timestamp on it.
+        self.assertFalse(helpers.csrf.token_is_valid('hello'))
+        # The timestamp needs to be within the current date range.
+        time_mock = mock.Mock()
+        helpers.csrf.time = time_mock
+        time_mock.time = mock.Mock(return_value=9999999999999)
+        self.assertFalse(helpers.csrf.token_is_valid('hello 123'))
+        # The user needs to be logged in.
+        token = helpers.csrf.make_token()
+        self.logout()
+        self.assertFalse(helpers.csrf.token_is_valid(token))
+        self.login()
+        # Modifying the token should break everything.
+        modified_token = '0' + token[1:]
+        if token == modified_token:
+            modified_token = '1' + token[1:]
+        self.assertFalse(helpers.csrf.token_is_valid(modified_token))
+        # The original token that we got should work.
+        self.assertTrue(helpers.csrf.token_is_valid(token))
 
 
 if __name__ == '__main__':
