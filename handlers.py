@@ -63,12 +63,14 @@ class DisplayProject(BaseHandler):
             if user_key == project.owner_key:
                 edit_link = self.uri_for(EditProject, project_id=project_id)
                 collaborator_emails = models.collaborator.\
-                    get_collaborator_emails(ndb.Key(models.project.Project, int(project_id)))
+                    get_collaborator_emails(
+                        ndb.Key(models.project.Project, int(project_id)))
             if is_collaborating:
                 action = 'Leave'
                 action_link = self.uri_for(LeaveProject, project_id=project_id)
                 collaborator_emails = models.collaborator.\
-                    get_collaborator_emails(ndb.Key(models.project.Project, int(project_id)))
+                    get_collaborator_emails(
+                        ndb.Key(models.project.Project, int(project_id)))
             else: #logged in, but doesn't collaborate or own
                 action = 'Join'
                 action_link = self.uri_for(JoinProject, project_id=project_id)

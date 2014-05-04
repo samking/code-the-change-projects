@@ -18,7 +18,7 @@ def get_current_user_key():
     appengine_user = users.get_current_user()
     if appengine_user:
         user_id = appengine_user.user_id()
-        user_object = User.get_by_id(user_id)
+        local_user_object = User.get_by_id(user_id)
     # The user is not logged in.
     if not user_id:
         return None
