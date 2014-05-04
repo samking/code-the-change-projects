@@ -99,7 +99,8 @@ class EditProject(BaseHandler):
         edit_link = self.uri_for(EditProject, project_id=project_id)
         values = {
             'project': project, 'action_link': edit_link,
-            'action': 'Edit Your'}
+            'action': 'Edit Your',
+            'logout_url': users.create_logout_url('/')}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self, project_id):
@@ -123,7 +124,8 @@ class ListProjects(BaseHandler):
         for curr_project in projects:
             project_id = curr_project.key.id()
             links.append(self.uri_for(DisplayProject, project_id=project_id))
-        values = {'projects_and_links': zip(projects, links)}
+        values = {'projects_and_links': zip(projects, links),
+                'logout_url': users.create_logout_url('/')}
         self.response.write(templates.render('list_projects.html', values))
 
 
@@ -134,7 +136,8 @@ class NewProject(BaseHandler):
         """Renders the new project page in response to a GET request."""
         self.require_login()
         values = {
-            'action': 'Create a New', 'action_link': self.uri_for(NewProject)}
+            'action': 'Create a New', 'action_link': self.uri_for(NewProject),
+                        'logout_url': users.create_logout_url('/')}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self):

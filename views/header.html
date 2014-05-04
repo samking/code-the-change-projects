@@ -26,7 +26,9 @@
           <button type="submit" class="btn btn-default">Submit</button>
         </form>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="{{ logout_url }}">Logout</a></li>
+          {% if logout_url %}
+            <li><a href="{{ logout_url }}">Logout</a></li>
+          {% endif %}
         </ul>
       </div> {# navbar-collapse #}
     </div> {# container-fluid #}
