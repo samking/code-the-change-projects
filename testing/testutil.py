@@ -31,4 +31,3 @@ class CtcTestCase(unittest.TestCase):
             USER_ID=str(user.key.id()),
             overwrite=True)
         return user
-
