@@ -26,39 +26,25 @@ separate validation for them, you would need to modify this module.
 """
 # Inspired by https://github.com/cyberphobia/xsrfutil
 
-from datetime import datetime
-from datetime import timedelta
+import hashlib
+import hmac
 import os
+import time
 
+from google.appengine.api import users
 from google.appengine.ext import ndb
 
 
 SECRET_KEY_SIZE_BITS = 256
 SECRET_KEY_SIZE_BYTES = SECRET_KEY_SIZE_BITS / 8
-TOKEN_DURATION = timedelta(weeks=1)
+# One week in seconds.
+TOKEN_DURATION_SECONDS = 60*60*24*7
 
 
 class SecretKey(ndb.Model):
     """A secret key for use with CSRF tokens."""
 
     secret_key = ndb.BlobProperty(required=True)
-
-
-def make_token():
-  pass
-
-
-def validate_token(request):
-    token = request.get('csrf_token')
-    token_time = token.split('-')[-1]
-    if not token:
-        return False
-    user = users.get_current_user()
-    if not user:
-        return False
-    current_time = datetime.utcnow()
-    user_id = user.user_id()
-    path = request.path
     
 
 def _get_secret_key():
@@ -72,3 +58,89 @@ def _get_secret_key():
     secret_key = SecretKey(secret_key=random_bytes, key=ndb_key)
     secret_key.put()
     return random_bytes
+
+
+def _tokens_are_equal(token1, token2):
+    """Returns (token1 == token2).  Always takes the same amount of time.
+
+    This function is necessary to avoid timing attacks.  The == operator will
+    return faster if two things are unequal earlier, and an attacker could use
+    that to figure out which letter they guessed wrong.
+
+    Args:
+        token1: A string to compare.
+        token2: A string to compare.
+
+    Returns:
+        True iff token1 == token2.
+    """
+    # Similar to the PyCrypto constant_time_comparison function (which isn't yet
+    # available in PyCrypto).
+    # https://github.com/dlitz/pycrypto/pull/52/files
+    if len(token1) != len(token2):
+        return False
+    differences = 0
+    for char1, char2 in zip(token1, token2):
+        differences |= ord(char1) ^ ord(char2)
+    return not differences
+
+
+def make_token(path=None, token_time=None):
+    """Creates a CSRF token for the current user and the provided path and time.
+
+    Args:
+        path: a string for the path where the CSRF token is valid.  Defaults to
+            the current path.
+        token_time: The number of seconds since the Unix epoch (time.time())
+            when this token was created.  Defaults to the current time.
+
+    Returns:
+        A string CSRF token for use with validate_token.  It is hex encoded, and
+        the token will include the token_time after a space.  Returns None if
+        there is no user currently logged in.
+    """
+        
+    if path is None:
+        path = os.environ.get('PATH_INFO', '/')
+    if token_time is None:
+        token_time = time.time()
+    token_time = int(token_time)
+    current_user = users.get_current_user()
+    if not current_user:
+        return None
+    current_user_id = current_user.user_id()
+    digester = hmac.new(key=_get_secret_key(), digestmod=hashlib.sha256)
+    digester.update('%s %s %d' % (current_user_id, path, token_time))
+    digest = digester.hexdigest()
+    token = '%s %d' % (digest, token_time)
+    return token
+
+
+def token_is_valid(token):
+    """Validates that the provided CSRF token is correct.
+
+    This checks that there is a token which includes a timestamp that hasn't
+    expired, that the user is logged in, and that the token is correct (it
+    hashes properly).
+
+    Args:
+        token: a CSRF token generated using make_token()
+
+    Returns:
+        True iff token is valid.
+    """
+    # There must be a token.
+    if not token:
+        return False
+    # The token must include a time.
+    if token.count(' ') != 1:
+        return False
+    token_time = int(token.split()[-1])
+    # The token must not have expired.
+    if token_time + TOKEN_DURATION_SECONDS < time.time():
+        return False
+    # The user must be logged in.
+    if not users.get_current_user():
+        return False
+    correct_token = make_token(token_time=token_time)
+    return _tokens_are_equal(token, correct_token)
