@@ -54,17 +54,23 @@ class DisplayProject(BaseHandler):
     def get(self, project_id):
         """Renders the project page in response to a GET request."""
         project = ndb.Key(models.project.Project, int(project_id)).get()
-        edit_link = self.uri_for(EditProject, project_id=project_id)
         user_key = models.user.get_current_user_key()
+        edit_link = None
         is_collaborating = models.collaborator.get_collaborator(
             user_key, project.key)
-        if user_key and is_collaborating:
-            action = 'Leave'
-            action_link = self.uri_for(LeaveProject, project_id=project_id)
+        if user_key:
+            if user_key == project.owner_key:
+                edit_link = edit_link = self.uri_for(EditProject, project_id=project_id)
+
+            if is_collaborating:
+                action = 'Leave'
+                action_link = self.uri_for(LeaveProject, project_id=project_id)
+            else:
+                action = 'Join'
+                action_link = self.uri_for(JoinProject, project_id=project_id)
         else:
-            # TODO(samking): This doesn't quite work for logged-out users.
-            action = 'Join'
-            action_link = self.uri_for(JoinProject, project_id=project_id)
+            action = 'Login to Join'
+            action_link = users.create_login_url(self.request.uri)
         values = {'project': project,
                   'num_contributors':
                       models.collaborator.get_collaborator_count(
