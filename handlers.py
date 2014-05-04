@@ -56,16 +56,20 @@ class DisplayProject(BaseHandler):
         project = ndb.Key(models.project.Project, int(project_id)).get()
         user_key = models.user.get_current_user_key()
         edit_link = None
+        collaborator_emails = None
         is_collaborating = models.collaborator.get_collaborator(
             user_key, project.key)
         if user_key:
             if user_key == project.owner_key:
-                edit_link = edit_link = self.uri_for(EditProject, project_id=project_id)
-
+                edit_link = self.uri_for(EditProject, project_id=project_id)
+                collaborator_emails = models.collaborator.\
+                    get_collaborator_emails(ndb.Key(models.project.Project, int(project_id)))
             if is_collaborating:
                 action = 'Leave'
                 action_link = self.uri_for(LeaveProject, project_id=project_id)
-            else:
+                collaborator_emails = models.collaborator.\
+                    get_collaborator_emails(ndb.Key(models.project.Project, int(project_id)))
+            else: #logged in, but doesn't collaborate or own
                 action = 'Join'
                 action_link = self.uri_for(JoinProject, project_id=project_id)
         else:
@@ -78,7 +82,8 @@ class DisplayProject(BaseHandler):
                   'edit_link': edit_link,
                   'action_link': action_link,
                   'action': action,
-                  'logout_url': generate_logout_url()
+                  'logout_url': generate_logout_url(),
+                  'collaborator_emails': collaborator_emails
         }
         self.response.write(templates.render('display_project.html', values))
 

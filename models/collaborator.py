@@ -35,4 +35,13 @@ def get_collaborator_count(project_key):
     result = query.fetch()
     return len(result)
 
+def get_collaborator_emails(project_key):
+    """Returns the emails of all collaborating users."""
+    query = Collaborator.query(ancestor=project_key)
+    query = query.order(Collaborator.created_date)
+    collaborators = query.fetch()
+    futures = [collaborator.user_key.get_async()
+        for collaborator in collaborators]
+    ndb.Future.wait_all(futures)
+    return [future.get_result().email for future in futures]
 

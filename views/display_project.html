@@ -21,6 +21,11 @@
       <div id="numbers">
         <h1>{{ num_contributors }}</h1>
         <p>People Involved</p>
+        {% if collaborator_emails %}
+          {% for email in collaborator_emails if collaborator_emails %}
+            <address><a href="mailto:{{ email }}">{{ email }}</a></address>
+          {% endfor %}
+        {% endif %}
         <form action='{{ action_link }}' method='post'>
           <div><input class="btn btn-primary btn-lg" type='submit' value='{{ action }} the Team'></div>
         </form>
