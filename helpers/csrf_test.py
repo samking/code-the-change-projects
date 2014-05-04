@@ -10,9 +10,9 @@ from testing import testutil
 class CsrfTests(testutil.CtcTestCase):
 
     def test_get_csrf_key(self):
-        csrf_key = helpers.csrf.get_csrf_key() 
+        csrf_key = helpers.csrf._get_csrf_key() 
         self.assertEqual(len(csrf_key), 32)
-        second_key = helpers.csrf.get_csrf_key()
+        second_key = helpers.csrf._get_csrf_key()
         self.assertEqual(csrf_key, second_key)
 
 
