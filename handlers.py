@@ -66,6 +66,9 @@ class DisplayProject(BaseHandler):
             action = 'Join'
             action_link = self.uri_for(JoinProject, project_id=project_id)
         values = {'project': project,
+                  'num_contributors':
+                      models.collaborator.get_collaborator_count(
+                          ndb.Key(models.project.Project, int(project_id))),
                   'edit_link': edit_link,
                   'action_link': action_link,
                   'action': action
@@ -145,11 +148,12 @@ class JoinProject(BaseHandler):
         """Accepts a request to join a project."""
         self.require_login()
         current_user_key = models.user.get_current_user_key()
-        # TODO(samking): ensure that there's at most one collaborator per user
-        # and project.
-        models.collaborator.Collaborator(
-            user_key=current_user_key,
-            project_key=ndb.Key(models.project.Project, int(project_id))).put()
+        collaborator = models.collaborator.get_collaborator(current_user_key,
+                    ndb.Key(models.project.Project, int(project_id)))
+        if not collaborator:
+            models.collaborator.Collaborator(
+                user_key=current_user_key,
+                project_key=ndb.Key(models.project.Project, int(project_id))).put()
         self.redirect_to(DisplayProject, project_id=project_id)
 
 

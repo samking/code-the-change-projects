@@ -21,7 +21,7 @@ def get_collaborator(user_key, project_key):
         Collaborator.user_key == user_key,
         Collaborator.project_key == project_key)
     collaborator = query.fetch(limit=1)
-    return  collaborator[0] if collaborator else None
+    return collaborator[0] if collaborator else None
 
 
 def get_projects(user_key):
@@ -34,3 +34,9 @@ def get_projects(user_key):
         futures.append(collaborator.project_key.get_async())
     ndb.Future.wait_all(futures)
     return [future.get_result() for future in futures]
+
+def get_collaborator_count(project_key):
+    """Counts the number of collaborators for a given project."""
+    query = Collaborator.query(Collaborator.project_key == project_key)
+    result = query.fetch()
+    return len(result)
