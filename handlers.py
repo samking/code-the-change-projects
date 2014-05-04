@@ -26,7 +26,7 @@ class MainPage(BaseHandler):
         """Renders the main landing page in response to a GET request."""
         values = {
             'login_url': users.create_login_url('/dashboard'),
-            'logout_url': users.create_logout_url('/')
+            'logout_url': generate_logout_url()
         }
         self.response.write(templates.render('main.html', values))
 
@@ -41,7 +41,7 @@ class DisplayDashboard(BaseHandler):
         owned_projects = models.project.get_by_owner(user_key)
         contributing_projects = models.collaborator.get_projects(user_key)
         values = {
-            'logout_url': users.create_logout_url('/'),
+            'logout_url': generate_logout_url(),
             'own': owned_projects,
             'contributing': contributing_projects
         }
@@ -77,7 +77,8 @@ class DisplayProject(BaseHandler):
                           ndb.Key(models.project.Project, int(project_id))),
                   'edit_link': edit_link,
                   'action_link': action_link,
-                  'action': action
+                  'action': action,
+                  'logout_url': generate_logout_url()
         }
         self.response.write(templates.render('display_project.html', values))
 
@@ -100,7 +101,7 @@ class EditProject(BaseHandler):
         values = {
             'project': project, 'action_link': edit_link,
             'action': 'Edit Your',
-            'logout_url': users.create_logout_url('/')}
+            'logout_url': generate_logout_url()}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self, project_id):
@@ -125,7 +126,7 @@ class ListProjects(BaseHandler):
             project_id = curr_project.key.id()
             links.append(self.uri_for(DisplayProject, project_id=project_id))
         values = {'projects_and_links': zip(projects, links),
-                'logout_url': users.create_logout_url('/')}
+                'logout_url': generate_logout_url()}
         self.response.write(templates.render('list_projects.html', values))
 
 
@@ -137,7 +138,7 @@ class NewProject(BaseHandler):
         self.require_login()
         values = {
             'action': 'Create a New', 'action_link': self.uri_for(NewProject),
-                        'logout_url': users.create_logout_url('/')}
+                        'logout_url': generate_logout_url()}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self):
@@ -178,3 +179,8 @@ class LeaveProject(BaseHandler):
         if collaborator:
             collaborator.key.delete()
         self.redirect_to(DisplayProject, project_id=project_id)
+
+def generate_logout_url():
+    """Helper function that serves up logout url if user is logged in
+    and otherwise returns None."""
+    return users.create_logout_url('/') if users.get_current_user() else None
