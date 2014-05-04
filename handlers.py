@@ -83,7 +83,8 @@ class DisplayProject(BaseHandler):
                   'action_link': action_link,
                   'action': action,
                   'logout_url': generate_logout_url(),
-                  'collaborator_emails': collaborator_emails
+                  'collaborator_emails': collaborator_emails,
+                  'logged_out_user': None == user_key
         }
         self.response.write(templates.render('display_project.html', values))
 

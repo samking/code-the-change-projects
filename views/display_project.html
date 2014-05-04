@@ -26,9 +26,14 @@
             <address><a href="mailto:{{ email }}">{{ email }}</a></address>
           {% endfor %}
         {% endif %}
-        <form action='{{ action_link }}' method='post'>
-          <div><input class="btn btn-primary btn-lg" type='submit' value='{{ action }} the Team'></div>
-        </form>
+
+        {% if logged_out_user %}
+          <a href="{{ action_link }}"><button class="btn btn-primary btn-lg" id="button-log-to-join">Login to Join</button></a>
+        {% else %}
+          <form action='{{ action_link }}' method='post'>
+            <div><input class="btn btn-primary btn-lg" type='submit' value='{{ action }} the Team'></div>
+          </form>
+        {% endif %}
         <p><a class="btn btn-primary btn-lg" role="button">Contribute Code</a></p>
       </div>
     </div>
