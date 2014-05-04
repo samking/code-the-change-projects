@@ -162,7 +162,7 @@ class JoinProject(BaseHandler):
         if not collaborator:
             models.collaborator.Collaborator(
                 user_key=current_user_key,
-                project_key=ndb.Key(models.project.Project, int(project_id))).put()
+                parent=ndb.Key(models.project.Project, int(project_id))).put()
         self.redirect_to(DisplayProject, project_id=project_id)
 
 
