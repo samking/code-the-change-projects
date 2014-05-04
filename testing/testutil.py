@@ -17,6 +17,7 @@ class CtcTestCase(unittest.TestCase):
         # It's annoying to have to figure out the right stub while you're
         # writing tests, so initialize ALL the stubs!
         self.testbed.init_all_stubs()
+        self.logged_in_user = None
 
     def tearDown(self):
         super(CtcTestCase, self).tearDown()
@@ -24,10 +25,15 @@ class CtcTestCase(unittest.TestCase):
 
     def login(self):
         """Creates a user, logs in, and returns the user."""
-        user = models.user.User()
-        user.put()
+        if not self.logged_in_user:
+            self.logged_in_user = models.user.User()
+            self.logged_in_user.put()
         self.testbed.setup_env(
             USER_EMAIL='test@codethechange.org',
-            USER_ID=str(user.key.id()),
+            USER_ID=str(self.logged_in_user.key.id()),
             overwrite=True)
-        return user
+        return self.logged_in_user
+
+    def logout(self):
+        """Clears the currently logged in user."""
+        self.testbed.setup_env(USER_EMAIL='', USER_ID='', overwrite=True)
