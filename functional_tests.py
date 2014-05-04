@@ -22,16 +22,6 @@ class FunctionalTests(testutil.CtcTestCase):
         super(FunctionalTests, self).setUp()
         self.testapp = webtest.TestApp(server.APP)
 
-    def login(self):
-        """Creates a user, logs in, and returns the user."""
-        user = models.user.User()
-        user.put()
-        self.testbed.setup_env(
-            USER_EMAIL='test@codethechange.org',
-            USER_ID=str(user.key.id()),
-            overwrite=True)
-        return user
-
     def test_get_new_project(self):
         self.login()
         response = self.testapp.get('/project/new', status=200)
