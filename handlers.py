@@ -1,4 +1,5 @@
-"""All handlers for ctc projects."""
+"""All handlers for CtC projects."""
+
 import webapp2
 
 from google.appengine.api import users
@@ -17,16 +18,6 @@ class BaseHandler(webapp2.RequestHandler):
         """Redirect to the login page and abort if the user is not logged in."""
         if not users.get_current_user():
             self.redirect(users.create_login_url(self.request.uri), abort=True)
-
-    def dispatch(self):
-        """Set common values and check CSRF tokens before dispatching."""
-        # We want to check the CSRF token in EVERY handler that can mutate state
-        # (every non-GET handler).  If we manually put these checks in each POST
-        # handler, we could forget to include it and be insecure.  This will
-        # ensure that we fail securely.
-        # if self.request.method != 'GET':
-        #     self._validate_csrf_token()
-        super(BaseHandler, self).dispatch()
 
 
 class MainPage(BaseHandler):

@@ -3,8 +3,17 @@
 The easiest way to use this module is to make your handlers subclass
 CsrfHandler.  Then, all you need to do is put self.csrf_token into forms.
 
-If you want to manually use it, then you should override dispatch() in a base
-handler to do the following:
+Note that the default handler makes CSRF tokens that are valid for the current
+URL.  That means that you would need to POST to the same URL that the form lives
+at.  If that isn't the case, you need to specify a path:
+    csrf.make_token(path)
+
+Also, this module doesn't differentiate different HTTP mutator methods (POST,
+PUT, DELETE), so if you define multiple mutator methods at a given URL and want
+separate validation for them, you would need to modify this module.
+
+If you don't want to subclass the CsrfHandler, then you should override
+dispatch() in a base handler to do the following:
   If the request is a get request, create a CSRF token like:
       self.csrf_token = csrf.make_token()
   If the request is a post request, ensure that CSRF tokens is valid like:
@@ -14,15 +23,6 @@ The reason that you should override dispatch() is because using a decorator or a
 function call in all post() requests is error prone.  Specifically, if you
 forgot to annotate a request, you would fail insecurely.  This way, post()
 requests won't succeed unless you have the proper CSRF token.
-
-Note that the default handler makes CSRF tokens that are valid for the current
-URL.  That means that you would need to POST to the same URL that the form lives
-at.  If that isn't the case, you need to specify a path:
-    csrf.make_token(path)
-
-Also, this module doesn't differentiate different HTTP mutator methods (POST,
-PUT, DELETE), so if you define multiple mutator methods at a given URL and want
-separate validation for them, you would need to modify this module.
 """
 # Inspired by https://github.com/cyberphobia/xsrfutil
 
@@ -30,6 +30,8 @@ import hashlib
 import hmac
 import os
 import time
+
+import webapp2
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -39,6 +41,10 @@ SECRET_KEY_SIZE_BITS = 256
 SECRET_KEY_SIZE_BYTES = SECRET_KEY_SIZE_BITS / 8
 # One week in seconds.
 TOKEN_DURATION_SECONDS = 60*60*24*7
+CSRF_ERROR_MESSAGE = ('Your request looks suspicious, so we rejected it.  This '
+    'would happen if you loaded the form a week before submitting it, but '
+    "other legitimate requests shouldn't trigger this error.  Email "
+    'admin@codethechange.org if you think something is wrong.')
 
 
 class SecretKey(ndb.Model):
@@ -46,6 +52,36 @@ class SecretKey(ndb.Model):
 
     secret_key = ndb.BlobProperty(required=True)
     
+
+class CsrfHandler(webapp2.RequestHandler):
+    """A request handler that is CSRF-safe.
+
+    Specifically, all GET requests will have self.csrf_token, which they can
+    embed in any forms for the same URL, and all mutator requests (POST, PUT,
+    DELETE) will validate their CSRF token.  An app that follows HTTP method
+    conventions (GET, HEAD, OPTIONS, and TRACE don't have side effects) should
+    be safe.
+
+    If you use this, you will need to manually put the CSRF token into your
+    forms.  Also, if you have any forms that POST to a different URL than the
+    GET where the form lives, you will need to manually call
+    csrf.make_token(path) to make the CSRF token.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(CsrfHandler, self).__init__(*args, **kwargs)
+        self.csrf_token = None
+
+    def dispatch(self):
+        """Make a CSRF token for GET requests and verify it for mutators."""
+        method = self.request.method
+        if method == 'GET':
+            self.csrf_token = make_token()
+        if method == 'POST' or method == 'PUT' or method == 'DELETE':
+            if not token_is_valid(self.request.get('csrf_token')):
+                self.abort(403, detail=CSRF_ERROR_MESSAGE)
+        super(CsrfHandler, self).dispatch()
+
 
 def _get_secret_key():
     """Returns the CSRF key, creating one in necessary."""
@@ -99,7 +135,6 @@ def make_token(path=None, token_time=None):
         the token will include the token_time after a space.  Returns None if
         there is no user currently logged in.
     """
-        
     if path is None:
         path = os.environ.get('PATH_INFO', '/')
     if token_time is None:
