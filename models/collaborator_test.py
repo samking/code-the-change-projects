@@ -37,7 +37,8 @@ class CollaboratorTests(testutil.CtcTestCase):
         collaborator = models.collaborator.Collaborator(
             user_key=user_key, parent=project.key)
         collaborator.put()
-        another_user_key = models.user.User(email='another@codethechange.org').put()
+        another_user_key = models.user.User(
+            email='another@codethechange.org').put()
         collaborator = models.collaborator.Collaborator(
             user_key=another_user_key, parent=project.key)
         collaborator.put()
@@ -52,7 +53,8 @@ class CollaboratorTests(testutil.CtcTestCase):
         collaborator = models.collaborator.Collaborator(
             user_key=user_key, parent=project.key)
         collaborator.put()
-        another_user_key = models.user.User(email='another@codethechange.org').put()
+        another_user_key = models.user.User(
+            email='another@codethechange.org').put()
         collaborator = models.collaborator.Collaborator(
             user_key=another_user_key, parent=project.key)
         collaborator.put()

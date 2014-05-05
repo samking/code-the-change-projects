@@ -24,7 +24,8 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def login(self):
         """Creates a user, logs in, and returns the user."""
-        user = models.user.User(id='currentuser', email='test@codethechange.org')
+        user = models.user.User(id='currentuser',
+                                email='test@codethechange.org')
         user.put()
         self.testbed.setup_env(
             USER_EMAIL='test@codethechange.org',
@@ -108,7 +109,8 @@ class FunctionalTests(testutil.CtcTestCase):
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
         self.assertIn('0', project_page.body)
 
-        collab = models.collaborator.Collaborator(user_key=user_key, parent=project.key)
+        collab = models.collaborator.Collaborator(
+            user_key=user_key, parent=project.key)
         collab.put()
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
         self.assertIn('1', project_page.body)
@@ -123,9 +125,10 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('Login to', project_page.body)
 
         user_key = self.login().key
-        collab = models.collaborator.Collaborator(user_key=user_key, parent=project.key)
+        collab = models.collaborator.Collaborator(
+            user_key=user_key, parent=project.key)
         collab.put()
-        
+
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
         self.assertIn('address', project_page.body)
         self.assertIn('@', project_page.body)
