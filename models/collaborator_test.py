@@ -46,7 +46,6 @@ class CollaboratorTests(testutil.CtcTestCase):
             ['user@codethechange.org', 'another@codethechange.org'])
 
 
-
     def test_get_collaborator_count(self):
         user_key = models.user.User(email='user@codethechange.org').put()
         project = model_helpers.create_project(owner_key=user_key)
@@ -64,8 +63,6 @@ class CollaboratorTests(testutil.CtcTestCase):
         self.assertEqual(
             models.collaborator.get_collaborator_count(project.key),
             1)
-
-
 
 
 if __name__ == '__main__':

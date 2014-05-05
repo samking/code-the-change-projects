@@ -24,11 +24,11 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def login(self):
         """Creates a user, logs in, and returns the user."""
-        user = models.user.User(email='test@codethechange.org')
+        user = models.user.User(id='currentuser', email='test@codethechange.org')
         user.put()
         self.testbed.setup_env(
             USER_EMAIL='test@codethechange.org',
-            USER_ID=str(user.key.id()),
+            USER_ID=user.key.id(),
             overwrite=True)
         return user
 
@@ -99,6 +99,39 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('hello', project_page.body)
         self.assertIn('world', project_page.body)
 
+
+    def test_display_project_counts(self):
+        user_key = self.login().key
+        project = model_helpers.create_project('hello', 'world')
+        project_id = project.key.id()
+
+        project_page = self.testapp.get('/project/%d' % project_id, status=200)
+        self.assertIn('0', project_page.body)
+
+        collab = models.collaborator.Collaborator(user_key=user_key, parent=project.key)
+        collab.put()
+        project_page = self.testapp.get('/project/%d' % project_id, status=200)
+        self.assertIn('1', project_page.body)
+
+
+    def test_display_project_emails(self):
+        project = model_helpers.create_project('hello', 'world')
+        project_id = project.key.id()
+        project_page = self.testapp.get('/project/%d' % project_id, status=200)
+        self.assertNotIn('address', project_page.body)
+        self.assertNotIn('@', project_page.body)
+        self.assertIn('Login to', project_page.body)
+
+        user_key = self.login().key
+        collab = models.collaborator.Collaborator(user_key=user_key, parent=project.key)
+        collab.put()
+        
+        project_page = self.testapp.get('/project/%d' % project_id, status=200)
+        self.assertIn('address', project_page.body)
+        self.assertIn('@', project_page.body)
+
+
+
     def test_get_main_page(self):
         main_page = self.testapp.get('/', status=200)
         self.assertIn('Code the Change', main_page.body)
@@ -124,6 +157,8 @@ class FunctionalTests(testutil.CtcTestCase):
         for url in login_required_post_urls:
             page = self.testapp.post(url, status=302)
             self.assertIn('Login', page.location)
+
+
 
 
 if __name__ == '__main__':
