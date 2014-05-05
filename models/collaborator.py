@@ -10,7 +10,6 @@ class Collaborator(ndb.Model):
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
 
 
-
 def get_collaborator(user_key, project_key):
     """Returns a collaboration if the user is collaborating on the project."""
     query = Collaborator.query(ancestor=project_key).filter(
@@ -29,11 +28,13 @@ def get_projects(user_key):
     ndb.Future.wait_all(futures)
     return [future.get_result() for future in futures]
 
+
 def get_collaborator_count(project_key):
     """Counts the number of collaborators for a given project."""
     query = Collaborator.query(ancestor=project_key)
     result = query.fetch()
     return len(result)
+
 
 def get_collaborator_emails(project_key):
     """Returns the emails of all collaborating users."""

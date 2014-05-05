@@ -31,6 +31,42 @@ class CollaboratorTests(testutil.CtcTestCase):
             user_key=user_key, parent=project.key).put()
         self.assertEqual(models.collaborator.get_projects(user_key), [project])
 
+    def test_get_emails(self):
+        user_key = models.user.User(email='user@codethechange.org').put()
+        project = model_helpers.create_project(owner_key=user_key)
+        collaborator = models.collaborator.Collaborator(
+            user_key=user_key, parent=project.key)
+        collaborator.put()
+        another_user_key = models.user.User(email='another@codethechange.org').put()
+        collaborator = models.collaborator.Collaborator(
+            user_key=another_user_key, parent=project.key)
+        collaborator.put()
+        self.assertEqual(
+            models.collaborator.get_collaborator_emails(project.key),
+            ['user@codethechange.org', 'another@codethechange.org'])
+
+
+
+    def test_get_collaborator_count(self):
+        user_key = models.user.User(email='user@codethechange.org').put()
+        project = model_helpers.create_project(owner_key=user_key)
+        collaborator = models.collaborator.Collaborator(
+            user_key=user_key, parent=project.key)
+        collaborator.put()
+        another_user_key = models.user.User(email='another@codethechange.org').put()
+        collaborator = models.collaborator.Collaborator(
+            user_key=another_user_key, parent=project.key)
+        collaborator.put()
+        self.assertEqual(
+            models.collaborator.get_collaborator_count(project.key),
+            2)
+        collaborator.key.delete()
+        self.assertEqual(
+            models.collaborator.get_collaborator_count(project.key),
+            1)
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
