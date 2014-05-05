@@ -24,7 +24,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def login(self):
         """Creates a user, logs in, and returns the user."""
-        user = models.user.User()
+        user = models.user.User(email='test@codethechange.org')
         user.put()
         self.testbed.setup_env(
             USER_EMAIL='test@codethechange.org',
@@ -86,7 +86,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_only_creator_can_edit_project(self):
         self.login()
-        other_user = models.user.User()
+        other_user = models.user.User(email='anotheruser@codethechange.org')
         other_user.put()
         project = model_helpers.create_project(owner_key=other_user.key)
         project_id = project.key.id()

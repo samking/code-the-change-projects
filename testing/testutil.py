@@ -14,7 +14,8 @@ class CtcTestCase(unittest.TestCase):
         self.testbed.activate()
         # It's annoying to have to figure out the right stub while you're
         # writing tests, so initialize ALL the stubs!
-        self.testbed.init_all_stubs()
+        self.testbed.init_datastore_v3_stub()
+        self.testbed.init_user_stub()
 
     def tearDown(self):
         super(CtcTestCase, self).tearDown()

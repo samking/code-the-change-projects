@@ -12,23 +12,23 @@ from testing import testutil
 class CollaboratorTests(testutil.CtcTestCase):
 
     def test_get_collaborator(self):
-        user_key = models.user.User().put()
+        user_key = models.user.User(email='user@codethechange.org').put()
         project = model_helpers.create_project(owner_key=user_key)
         self.assertEqual(
             models.collaborator.get_collaborator(user_key, project.key), None)
         collaborator = models.collaborator.Collaborator(
-            user_key=user_key, project_key=project.key)
+            user_key=user_key, parent=project.key)
         collaborator.put()
         self.assertEqual(
             models.collaborator.get_collaborator(user_key, project.key),
             collaborator)
 
     def test_get_projects(self):
-        user_key = models.user.User().put()
+        user_key = models.user.User(email='getter@codethechange.org').put()
         self.assertEqual(models.collaborator.get_projects(user_key), [])
         project = model_helpers.create_project(owner_key=user_key)
         models.collaborator.Collaborator(
-            user_key=user_key, project_key=project.key).put()
+            user_key=user_key, parent=project.key).put()
         self.assertEqual(models.collaborator.get_projects(user_key), [project])
 
 

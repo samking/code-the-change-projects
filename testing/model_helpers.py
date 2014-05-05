@@ -13,7 +13,7 @@ def create_project(
         owner_key = user.get_current_user_key()
         # If the user is not logged in, an arbitrary user is the owner.
         if owner_key is None:
-            owner_key = user.User().put()
+            owner_key = user.User(email='arbitrary@codethechange.org').put()
     new_project = project.Project(
         title=title, description=description, lead=lead,
         tech_objectives=tech_objectives, github=github, owner_key=owner_key)
