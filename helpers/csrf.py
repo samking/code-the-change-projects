@@ -17,7 +17,7 @@ dispatch() in a base handler to do the following:
   If the request is a get request, create a CSRF token like:
       self.csrf_token = csrf.make_token()
   If the request is a post request, ensure that CSRF tokens is valid like:
-      if not csrf.taken_is_valid(request.get('csrf_token'):
+      if not csrf.token_is_valid(request.get('csrf_token'):
           self.abort(403)
 The reason that you should override dispatch() is because using a decorator or a
 function call in all post() requests is error prone.  Specifically, if you

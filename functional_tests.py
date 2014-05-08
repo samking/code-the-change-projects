@@ -6,11 +6,10 @@ handler testing guide or http://webtest.pythonpaste.org/en/latest/ for webtest.
 
 import unittest
 
-import webtest
-
 import models.project
 import models.user
 import server
+from helpers import csrf
 from testing import model_helpers
 from testing import testutil
 
@@ -20,7 +19,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def setUp(self):
         super(FunctionalTests, self).setUp()
-        self.testapp = webtest.TestApp(server.APP)
+        self.testapp = testutil.TestApp(server.APP)
 
     def test_get_new_project(self):
         self.login()
@@ -33,10 +32,12 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_post_new_project(self):
         self.login()
+        csrf_token = csrf.make_token('/project/new')
         # There should be no projects to start.
         self.assertEqual(models.project.Project.query().count(), 0)
         response = self.testapp.post('/project/new', {
-            'title': 'test_title', 'description': 'test_description'})
+            'title': 'test_title', 'description': 'test_description',
+            'csrf_token': csrf_token})
         # There should be a new project created.
         self.assertEqual(models.project.Project.query().count(), 1)
         # It should redirect to the page displaying the project.
@@ -67,8 +68,10 @@ class FunctionalTests(testutil.CtcTestCase):
         self.login()
         project = model_helpers.create_project('hello', 'world')
         project_id = project.key.id()
+        csrf_token = csrf.make_token('/project/%d/edit' % project_id)
         response = self.testapp.post(
-            '/project/%d/edit' % project_id, {'title': 'goodbye'}, status=302)
+            '/project/%d/edit' % project_id,
+            {'title': 'goodbye', 'csrf_token': csrf_token}, status=302)
         self.assertTrue(response.location.endswith('/%d' % project_id))
         edited_project = project.key.get()
         self.assertEqual(edited_project.title, 'goodbye')
@@ -107,13 +110,27 @@ class FunctionalTests(testutil.CtcTestCase):
             display_project + '/join', display_project + '/leave']
         login_not_required_urls = ['/', '/projects', display_project]
         for url in login_not_required_urls:
-            page = self.testapp.get(url, status=200)
+            self.testapp.get(url, status=200)
         for url in login_required_get_urls:
             page = self.testapp.get(url, status=302)
             self.assertIn('Login', page.location)
         for url in login_required_post_urls:
-            page = self.testapp.post(url, status=302)
-            self.assertIn('Login', page.location)
+            # If login is required and the user isn't logged in, they will fail
+            # the CSRF check.
+            csrf_token = csrf.make_token(url)
+            self.testapp.post(url, {'csrf_token': csrf_token}, status=403)
+
+    # TODO(samking): add end to end tests (eg, go to the GET page and then send
+    # the POST to use the actual hidden field).
+    def test_forms_have_csrf_tokens(self):
+        self.login()
+        project = model_helpers.create_project()
+        display_project = '/project/%d' % project.key.id()
+        # These URLs have forms that should have CSRF tokens in them.
+        form_urls = ['/project/new', display_project, display_project + '/edit']
+        for url in form_urls:
+            page = self.testapp.get(url, status=200)
+            self.assertIn('csrf_token', page.body)
 
 
 if __name__ == '__main__':

@@ -1,17 +1,16 @@
 """All handlers for CtC projects."""
 
-import webapp2
-
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
 import models.collaborator
 import models.project
 import models.user
+from helpers import csrf
 from helpers import templates
 
 
-class BaseHandler(webapp2.RequestHandler):
+class BaseHandler(csrf.CsrfHandler):
     """Superclass for all CtC handlers."""
 
     def require_login(self):
@@ -69,7 +68,8 @@ class DisplayProject(BaseHandler):
         values = {'project': project,
                   'edit_link': edit_link,
                   'action_link': action_link,
-                  'action': action
+                  'action': action,
+                  'csrf_token': csrf.make_token(action_link)
         }
         self.response.write(templates.render('display_project.html', values))
 
@@ -91,7 +91,7 @@ class EditProject(BaseHandler):
         edit_link = self.uri_for(EditProject, project_id=project_id)
         values = {
             'project': project, 'action_link': edit_link,
-            'action': 'Edit Your'}
+            'action': 'Edit Your', 'csrf_token': self.csrf_token}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self, project_id):
@@ -126,7 +126,8 @@ class NewProject(BaseHandler):
         """Renders the new project page in response to a GET request."""
         self.require_login()
         values = {
-            'action': 'Create a New', 'action_link': self.uri_for(NewProject)}
+            'action': 'Create a New', 'action_link': self.uri_for(NewProject),
+            'csrf_token': self.csrf_token}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self):

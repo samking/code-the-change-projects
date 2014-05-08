@@ -1,6 +1,9 @@
 """A utility for tests."""
 
+import os
 import unittest
+
+import webtest
 
 from google.appengine.ext import testbed
 
@@ -37,3 +40,17 @@ class CtcTestCase(unittest.TestCase):
     def logout(self):
         """Clears the currently logged in user."""
         self.testbed.setup_env(USER_EMAIL='', USER_ID='', overwrite=True)
+
+
+class TestApp(webtest.TestApp):
+    """A test app for sending requests to handlers that sets PATH_INFO."""
+
+    def post(self, path, *args, **kwargs):
+        """Adds PATH_INFO to the environment and sends a POST."""
+        os.environ['PATH_INFO'] = path
+        return super(TestApp, self).post(path, *args, **kwargs)
+
+    def get(self, path, *args, **kwargs):
+        """Adds PATH_INFO to the environment and sends a GET."""
+        os.environ['PATH_INFO'] = path
+        return super(TestApp, self).get(path, *args, **kwargs)

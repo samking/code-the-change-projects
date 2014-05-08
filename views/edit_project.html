@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% from "csrf.html" import make_csrf_input %}
 {% block body %}
   <h1>{{ action }} Project</h1>
   <hr>
   <form action="{{ action_link }}" method="post">
+    {{ make_csrf_input(csrf_token) }}
     <div class="col-md-8 project-form">
       {# TODO(samking): This is repetitive.  Use a for loop or something. #}
       <h3>Title</h3>
