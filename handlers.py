@@ -25,6 +25,7 @@ class MainPage(BaseHandler):
     def get(self):
         """Renders the main landing page in response to a GET request."""
         values = {
+            #TODO: initialize login and logout urls in base handler?
             'login_url': users.create_login_url('/dashboard'),
             'logout_url': generate_logout_url()
         }
@@ -57,24 +58,27 @@ class DisplayProject(BaseHandler):
         user_key = models.user.get_current_user_key()
         edit_link = None
         collaborator_emails = None
+        #Initialize some truthy objects for the following display logic.
+        is_logged_in = user_key
         is_collaborating = models.collaborator.get_collaborator(
             user_key, project.key)
-        if user_key:
-            if user_key == project.owner_key:
-                edit_link = self.uri_for(EditProject, project_id=project_id)
-                collaborator_emails = models.collaborator.\
-                    get_collaborator_emails(
-                        ndb.Key(models.project.Project, int(project_id)))
-            if is_collaborating:
-                action = 'Leave'
-                action_link = self.uri_for(LeaveProject, project_id=project_id)
-                collaborator_emails = models.collaborator.\
-                    get_collaborator_emails(
-                        ndb.Key(models.project.Project, int(project_id)))
-            else: #logged in, but doesn't collaborate or own
-                action = 'Join'
-                action_link = self.uri_for(JoinProject, project_id=project_id)
-        else:
+        is_project_owner = is_logged_in and project.owner_key == user_key
+        should_show_collaborator_emails = is_collaborating or is_project_owner
+        #Use the above as booleans to guide permissions.
+        if is_project_owner:
+            edit_link = self.uri_for(EditProject, project_id=project_id)
+        if should_show_collaborator_emails:
+            collaborator_emails = models.collaborator.get_collaborator_emails(
+                    ndb.Key(models.project.Project,
+                    int(project_id))
+            )
+        if is_collaborating:
+            action = 'Leave'
+            action_link = self.uri_for(LeaveProject, project_id=project_id)
+        if not is_collaborating and is_logged_in:
+            action = 'Join'
+            action_link = self.uri_for(JoinProject, project_id=project_id)
+        if not is_logged_in:
             action = 'Login to Join'
             action_link = users.create_login_url(self.request.uri)
         values = {'project': project,
@@ -134,7 +138,7 @@ class ListProjects(BaseHandler):
             project_id = curr_project.key.id()
             links.append(self.uri_for(DisplayProject, project_id=project_id))
         values = {'projects_and_links': zip(projects, links),
-                'logout_url': generate_logout_url()}
+                  'logout_url': generate_logout_url()}
         self.response.write(templates.render('list_projects.html', values))
 
 
@@ -146,7 +150,7 @@ class NewProject(BaseHandler):
         self.require_login()
         values = {
             'action': 'Create a New', 'action_link': self.uri_for(NewProject),
-                        'logout_url': generate_logout_url()}
+            'logout_url': generate_logout_url()}
         self.response.write(templates.render('edit_project.html', values))
 
     def post(self):
@@ -166,12 +170,11 @@ class JoinProject(BaseHandler):
         """Accepts a request to join a project."""
         self.require_login()
         current_user_key = models.user.get_current_user_key()
-        collaborator = models.collaborator.get_collaborator(current_user_key,
-                    ndb.Key(models.project.Project, int(project_id)))
-        if not collaborator:
-            models.collaborator.Collaborator(
-                user_key=current_user_key,
-                parent=ndb.Key(models.project.Project, int(project_id))).put()
+        models.collaborator.Collaborator(
+            user_key=current_user_key,
+            parent=ndb.Key(models.project.Project,
+            int(project_id))
+        ).get_or_insert()
         self.redirect_to(DisplayProject, project_id=project_id)
 
 
@@ -189,6 +192,5 @@ class LeaveProject(BaseHandler):
         self.redirect_to(DisplayProject, project_id=project_id)
 
 def generate_logout_url():
-    """Helper function that serves up logout url if user is logged in
-    and otherwise returns None."""
+    """Returns logout url if user is logged in; otherwise returns None."""
     return users.create_logout_url('/') if users.get_current_user() else None

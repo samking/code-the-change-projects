@@ -10,6 +10,12 @@ class Collaborator(ndb.Model):
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
 
 
+    def _pre_put_hook(self):
+        """Raises an exception if a new collaborator does not have a parent."""
+        if not self.key.parent():
+            raise Exception("No parent project for this collaborator.")
+
+
 def get_collaborator(user_key, project_key):
     """Returns a collaboration if the user is collaborating on the project."""
     query = Collaborator.query(ancestor=project_key).filter(
@@ -32,8 +38,7 @@ def get_projects(user_key):
 def get_collaborator_count(project_key):
     """Counts the number of collaborators for a given project."""
     query = Collaborator.query(ancestor=project_key)
-    result = query.fetch()
-    return len(result)
+    return query.count()
 
 
 def get_collaborator_emails(project_key):
@@ -42,7 +47,7 @@ def get_collaborator_emails(project_key):
     query = query.order(Collaborator.created_date)
     collaborators = query.fetch()
     futures = [collaborator.user_key.get_async()
-        for collaborator in collaborators]
+               for collaborator in collaborators]
     ndb.Future.wait_all(futures)
     return [future.get_result().email for future in futures]
 

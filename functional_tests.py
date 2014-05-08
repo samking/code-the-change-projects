@@ -100,37 +100,39 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('hello', project_page.body)
         self.assertIn('world', project_page.body)
 
-
-    def test_display_project_counts(self):
+    def test_project_page_includes_counts(self):
         user_key = self.login().key
         project = model_helpers.create_project('hello', 'world')
         project_id = project.key.id()
-
+        #Check to see that the count is present and 0.
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
-        self.assertIn('0', project_page.body)
-
+        self.assertRegexpMatches(
+            project_page.body,
+            'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
+        #Add a collaborator and check to see the count increments.
         collab = models.collaborator.Collaborator(
             user_key=user_key, parent=project.key)
         collab.put()
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
-        self.assertIn('1', project_page.body)
+        self.assertRegexpMatches(
+            project_page.body,
+            'id="numbers".*\n.*<h1>1</h1>.*\n.*People Involved')
 
 
-    def test_display_project_emails(self):
+    def test_only_show_emails_of_collaborators_to_other_collaborators(self):
         project = model_helpers.create_project('hello', 'world')
         project_id = project.key.id()
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
-        self.assertNotIn('address', project_page.body)
+        self.assertNotIn('email', project_page.body)
         self.assertNotIn('@', project_page.body)
         self.assertIn('Login to', project_page.body)
-
+        #Now, make the user a collaborator and verify the emails are present.
         user_key = self.login().key
         collab = models.collaborator.Collaborator(
             user_key=user_key, parent=project.key)
         collab.put()
-
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
-        self.assertIn('address', project_page.body)
+        self.assertIn('email', project_page.body)
         self.assertIn('@', project_page.body)
 
 
