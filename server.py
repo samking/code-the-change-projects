@@ -33,4 +33,6 @@ APP = webapp2.WSGIApplication([
     named_route(r'/project/<project_id:\d+>/leave', handlers.LeaveProject),
     named_route(r'/project/new', handlers.NewProject),
     named_route(r'/dashboard', handlers.DisplayDashboard),
+    named_route(r'/user/<user_id:\d+>', handlers.DisplayUser),
+    named_route(r'/user/<user_id:\d+>/edit', handlers.EditUser)
 ], debug=IS_DEV)

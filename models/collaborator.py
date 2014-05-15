@@ -12,8 +12,7 @@ class Collaborator(ndb.Model):
 
     def _pre_put_hook(self):
         """Raises an exception if a new collaborator does not have a parent."""
-        if not self.key.parent():
-            raise Exception("No parent project for this collaborator.")
+        assert self.key.parent(), "No parent project for this collaborator."
 
 
 def get_collaborator(user_key, project_key):

@@ -49,6 +49,57 @@ class DisplayDashboard(BaseHandler):
         self.response.write(templates.render('dashboard.html', values))
 
 
+class DisplayUser(BaseHandler):
+    """The handler for displaying a user page."""
+
+    def get(self, user_id):
+        """Renders the user page in response to a GET request."""
+        self.require_login()
+        requesting_user_id = models.user.get_current_user_key().id()
+        profile_object = models.user.User.get_by_id(user_id)
+        is_profile_owner = (user_id == requesting_user_id)
+        edit_link = None
+        if is_profile_owner:
+            edit_link = self.uri_for(EditUser, user_id=user_id)
+        values = {
+            'profile': profile_object,
+            'edit_link': edit_link,
+            'logout_url': generate_logout_url()
+        }
+        self.response.write(templates.render('display_user.html', values))
+
+
+class EditUser(BaseHandler):
+    """The handler for editing a user profile."""
+
+    def require_owner(self, user_id):
+        """Aborts the current request if the user isn't the profile's owner."""
+        current_user_id = models.user.get_current_user_key().id()
+        if current_user_id != user_id:
+            self.abort(403)
+
+    def get(self, user_id):
+        """Renders the edit user page in response to a GET request."""
+        self.require_login()
+        self.require_owner(user_id)
+        profile_object = models.user.User.get_by_id(user_id)
+        edit_link = self.uri_for(EditUser, user_id=user_id)
+        values = {
+            'profile': profile_object,
+            'action_link': edit_link,
+            'action': 'Update',
+            'logout_url': generate_logout_url()}
+        self.response.write(templates.render('edit_user.html', values))
+
+    def post(self, user_id):
+        """Edits the provided project."""
+        self.require_login()
+        self.require_owner(user_id)
+        profile_object = models.user.User.get_by_id(user_id)
+        profile_object.populate(self.request).put()
+        self.redirect_to(DisplayUser, user_id=user_id)
+
+
 class DisplayProject(BaseHandler):
     """The handler for displaying a project."""
 
@@ -57,7 +108,7 @@ class DisplayProject(BaseHandler):
         project = ndb.Key(models.project.Project, int(project_id)).get()
         user_key = models.user.get_current_user_key()
         edit_link = None
-        collaborator_emails = None
+        collaborator_emails = []
         #Initialize some truthy objects for the following display logic.
         is_logged_in = user_key
         is_collaborating = models.collaborator.get_collaborator(
@@ -69,8 +120,7 @@ class DisplayProject(BaseHandler):
             edit_link = self.uri_for(EditProject, project_id=project_id)
         if should_show_collaborator_emails:
             collaborator_emails = models.collaborator.get_collaborator_emails(
-                    ndb.Key(models.project.Project,
-                    int(project_id))
+                    ndb.Key(models.project.Project, int(project_id))
             )
         if is_collaborating:
             action = 'Leave'
@@ -90,7 +140,7 @@ class DisplayProject(BaseHandler):
                   'action': action,
                   'logout_url': generate_logout_url(),
                   'collaborator_emails': collaborator_emails,
-                  'logged_out_user': None == user_key
+                  'logged_out_user': user_key is None
         }
         self.response.write(templates.render('display_project.html', values))
 
@@ -172,8 +222,7 @@ class JoinProject(BaseHandler):
         current_user_key = models.user.get_current_user_key()
         models.collaborator.Collaborator(
             user_key=current_user_key,
-            parent=ndb.Key(models.project.Project,
-            int(project_id))
+            parent=ndb.Key(models.project.Project, int(project_id))
         ).get_or_insert()
         self.redirect_to(DisplayProject, project_id=project_id)
 

@@ -24,7 +24,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def login(self):
         """Creates a user, logs in, and returns the user."""
-        user = models.user.User(id='currentuser',
+        user = models.user.User(id='12345',
                                 email='test@codethechange.org')
         user.put()
         self.testbed.setup_env(
@@ -165,6 +165,53 @@ class FunctionalTests(testutil.CtcTestCase):
 
 
 
+
+    def test_display_user(self):
+        self.login()
+        profile = models.user.User(
+            id='123',
+            email='testprofile@codethechange.org',
+            biography='i am awesome',
+            website='github!'
+        )
+        profile.put()
+        profile_id = profile.key.id()
+        page = self.testapp.get('/user/%d' % int(profile_id), status=200)
+        self.assertIn('i am awesome', page.body)
+        self.assertIn('github!', page.body)
+        self.assertNotIn('Secondary Contact', page.body)
+        self.assertNotIn('Edit', page.body)
+
+    def test_edit_user(self):
+        user_profile = self.login()
+        profile_id = user_profile.key.id()
+        page = self.testapp.get('/user/%d' % int(profile_id), status=200)
+        self.assertIn('test@codethechange.org', page.body)
+        self.assertIn('Edit', page.body)
+
+    def test_post_edit_user(self):
+        user_profile = self.login()
+        user_id = user_profile.key.id()
+        response = self.testapp.post(
+            '/user/%d/edit' % int(user_id),
+            {'biography': 'i can edit'}
+            , status=302
+        )
+        self.assertTrue(response.location.endswith('/%d' % int(user_id)))
+        edited_profile = user_profile.key.get()
+        self.assertEqual(edited_profile.email, 'test@codethechange.org')
+        self.assertEqual(edited_profile.biography, 'i can edit')
+
+    def test_only_owner_can_edit_profile(self):
+        self.login()
+        other_profile = models.user.User(
+            id='222222',
+            email='testprofile@codethechange.org',
+            biography='i am awesome',
+            website='github!'
+        ).put()
+        other_id = other_profile.id()
+        self.testapp.post('/user/%d/edit' % int(other_id), status=403)
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,6 +7,26 @@ class User(ndb.Model):
     """A model for one user."""
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
     email = ndb.StringProperty(required=True)
+    name = ndb.StringProperty(default="")
+    secondary_contact = ndb.StringProperty(default="")
+    biography = ndb.StringProperty(default="")
+    website = ndb.StringProperty(default="")
+
+    def populate(self, request):
+        """Populates the fields in a user's profile from a web request.
+
+        Args:
+            request: A WebOb.Request with string values for each settable
+                User parameter.
+
+        Returns:
+            self for the sake of chaining.
+        """
+        settable_fields = [
+            'name', 'secondary_contact', 'biography', 'website']
+        for field in settable_fields:
+            setattr(self, field, request.get(field))
+        return self
 
 def get_current_user_key():
     """Gets the ndb.Key for the current user, creating it if necessary.

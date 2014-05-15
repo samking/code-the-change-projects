@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block body %}
+  <div id="profile-header">
+    <div class="jumbotron">
+      <h1>{{ profile.name }}</h1>
+    </div>
+
+    <div class="col-xs-8">
+      {% if edit_link %}
+        <a href="{{ edit_link }}"><button class="btn btn-primary" id="button-edit">Edit Your Profile</button></a>
+      {% endif %}
+      <h2>Email</h2>
+      <p>{{ profile.email }}</p>
+
+      {% if profile.secondary_contact %}
+        <h2>Secondary Contact</h2>
+        <p>{{ profile.secondary_contact }}</p>
+      {% endif %}
+
+      {% if profile.biography %}
+        <h2>Developer History</h2>
+        <p>{{ profile.biography }}</p>
+      {% endif %}
+
+      {% if profile.website %}
+        <h2>Github Profile</h2>
+        <p>{{ profile.website }}</p>
+      {% endif %}
+    </div>
+  </div> {# profile-header #}
+{% endblock body %}

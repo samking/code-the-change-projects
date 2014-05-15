@@ -21,11 +21,9 @@
       <div id="numbers">
         <h1>{{ num_contributors }}</h1>
         <p>People Involved</p>
-        {% if collaborator_emails %}
-          {% for email in collaborator_emails %}
-            <p id="email"><a href="mailto:{{ email }}">{{ email }}</a></p>
-          {% endfor %}
-        {% endif %}
+        {% for email in collaborator_emails %}
+          <p class="email"><a href="mailto:{{ email }}">{{ email }}</a></p>
+        {% endfor %}
 
         {% if logged_out_user %}
           <a href="{{ action_link }}"><button class="btn btn-primary btn-lg" id="button-log-to-join">Login to Join</button></a>
