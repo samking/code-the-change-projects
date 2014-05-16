@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block body %}
+  <h1>{{ action }} User</h1>
+  <hr>
+  <form action="{{ action_link }}" method="post">
+    <div class="col-md-8 project-form">
+      {# TODO(samking): This is repetitive.  Use a for loop or something. #}
+      <h3>User Name</h3>
+      <div class="input-group input-large">
+        <input type="text" class="form-control" name="name"
+               placeholder="Enter the name you'd like to have displayed."
+               value="{{ profile and profile.name }}">
+      </div>
+
+      {# TODO(suciutwo): Let users edit email? This will require changing
+        project ownership and collaborations
+      <h3>Email</h3>
+      <div class="input-group input-large">
+        <input type="text" class="form-control" name="category"
+               placeholder="Email address you'd like collaborators to see."
+               value="{{ project and project.category }}">
+      </div>
+      #}
+
+      <h3>Secondary Contact Information</h3>
+      <div class="input-group input-large">
+        <input type="text" class="form-control" name="secondary_contact"
+               placeholder="[OPTIONAL] If you'd like to share another way to get in touch..."
+               value="{{ profile and profile.secondary_contact }}">
+      </div>
+
+      <h3>Biography</h3>
+      <div class="input-group input-large">
+        <textarea class="form-control" rows="5" name="biography"
+                  placeholder="Let people know what you've worked on.">
+          {{- profile and profile.biography -}}
+        </textarea>
+      </div>
+
+      <h3>Github Link</h3>
+      <div class="input-group input-large">
+        <input type="text" class="form-control" name="website"
+               placeholder="Share a link to your Github profile if you have one."
+               value="{{ profile and profile.website }}">
+      </div>
+
+      <div>
+        <input class="btn btn-primary" type="submit" value="{{ action }} User">
+      </div>
+    </div> {# profile-form #}
+  </form>
+
+  {# Sidebar #}
+  <div class="col-md-4">
+    <div>
+      {# TODO(samking): ditch the <br> tags and use CSS to make this visually
+      line up with the form. #}
+      <br>
+      <br>
+      <p>Feel free to update your profile so other users can get in touch with you.</p>
+    </div>
+  </div>
+{% endblock body %}

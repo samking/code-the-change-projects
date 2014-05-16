@@ -1,7 +1,7 @@
 """A model for one project."""
 
 from google.appengine.ext import ndb
-from models import user
+from models import user as user_model
 
 
 class Project(ndb.Model):
@@ -17,12 +17,9 @@ class Project(ndb.Model):
     tech_objectives = ndb.TextProperty(required=True)
     github = ndb.TextProperty(required=True)
 
-    num_commits = ndb.IntegerProperty(required=False, default=0)
-    num_contributors = ndb.IntegerProperty(required=False, default=0)
-
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
     updated_date = ndb.DateTimeProperty(required=True, auto_now=True)
-    owner_key = ndb.KeyProperty(required=True, kind=user.User)
+    owner_key = ndb.KeyProperty(required=True, kind=user_model.User)
     # TODO(samking): add these fields
     # tag_keys = ndb.KeyProperty(repeated=True, kind=tag.Tag)
     # is_completed = ndb.BooleanProperty(required=True, default=False)
