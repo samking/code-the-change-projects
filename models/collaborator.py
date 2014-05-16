@@ -49,4 +49,3 @@ def get_collaborator_emails(project_key):
                for collaborator in collaborators]
     ndb.Future.wait_all(futures)
     return [future.get_result().email for future in futures]
-

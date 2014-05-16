@@ -25,7 +25,7 @@ class MainPage(BaseHandler):
     def get(self):
         """Renders the main landing page in response to a GET request."""
         values = {
-            #TODO: initialize login and logout urls in base handler?
+            # TODO: initialize login and logout urls in base handler?
             'login_url': users.create_login_url('/dashboard'),
             'logout_url': generate_logout_url()
         }
@@ -109,13 +109,13 @@ class DisplayProject(BaseHandler):
         user_key = models.user.get_current_user_key()
         edit_link = None
         collaborator_emails = []
-        #Initialize some truthy objects for the following display logic.
+        # Initialize some truthy objects for the following display logic.
         is_logged_in = user_key
         is_collaborating = models.collaborator.get_collaborator(
             user_key, project.key)
         is_project_owner = is_logged_in and project.owner_key == user_key
         should_show_collaborator_emails = is_collaborating or is_project_owner
-        #Use the above as booleans to guide permissions.
+        # Use the above as booleans to guide permissions.
         if is_project_owner:
             edit_link = self.uri_for(EditProject, project_id=project_id)
         if should_show_collaborator_emails:
@@ -239,6 +239,7 @@ class LeaveProject(BaseHandler):
         if collaborator:
             collaborator.key.delete()
         self.redirect_to(DisplayProject, project_id=project_id)
+
 
 def generate_logout_url():
     """Returns logout url if user is logged in; otherwise returns None."""

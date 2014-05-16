@@ -14,6 +14,7 @@ import server
 from testing import model_helpers
 from testing import testutil
 
+
 # Tests don't need docstrings, so pylint: disable=C0111
 class FunctionalTests(testutil.CtcTestCase):
     """Test cases for handlers."""
@@ -104,12 +105,12 @@ class FunctionalTests(testutil.CtcTestCase):
         user_key = self.login().key
         project = model_helpers.create_project('hello', 'world')
         project_id = project.key.id()
-        #Check to see that the count is present and 0.
+        # Check to see that the count is present and 0.
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
         self.assertRegexpMatches(
             project_page.body,
             'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
-        #Add a collaborator and check to see the count increments.
+        # Add a collaborator and check to see the count increments.
         collab = models.collaborator.Collaborator(
             user_key=user_key, parent=project.key)
         collab.put()
@@ -118,7 +119,6 @@ class FunctionalTests(testutil.CtcTestCase):
             project_page.body,
             'id="numbers".*\n.*<h1>1</h1>.*\n.*People Involved')
 
-
     def test_only_show_emails_of_collaborators_to_other_collaborators(self):
         project = model_helpers.create_project('hello', 'world')
         project_id = project.key.id()
@@ -126,7 +126,7 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertNotIn('email', project_page.body)
         self.assertNotIn('@', project_page.body)
         self.assertIn('Login to', project_page.body)
-        #Now, make the user a collaborator and verify the emails are present.
+        # Now, make the user a collaborator and verify the emails are present.
         user_key = self.login().key
         collab = models.collaborator.Collaborator(
             user_key=user_key, parent=project.key)
@@ -134,8 +134,6 @@ class FunctionalTests(testutil.CtcTestCase):
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
         self.assertIn('email', project_page.body)
         self.assertIn('@', project_page.body)
-
-
 
     def test_get_main_page(self):
         main_page = self.testapp.get('/', status=200)
@@ -162,9 +160,6 @@ class FunctionalTests(testutil.CtcTestCase):
         for url in login_required_post_urls:
             page = self.testapp.post(url, status=302)
             self.assertIn('Login', page.location)
-
-
-
 
     def test_display_user(self):
         self.login()
