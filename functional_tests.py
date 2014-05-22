@@ -135,6 +135,10 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('email', project_page.body)
         self.assertIn('@', project_page.body)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> fixed posting crash and added functionality test to catch it
     def test_get_main_page(self):
         main_page = self.testapp.get('/', status=200)
         self.assertIn('Code the Change', main_page.body)
@@ -160,6 +164,26 @@ class FunctionalTests(testutil.CtcTestCase):
         for url in login_required_post_urls:
             page = self.testapp.post(url, status=302)
             self.assertIn('Login', page.location)
+
+
+    def test_join_and_leave_project(self):
+        self.login()
+        self.testapp.post('/project/new', {
+            'title': 'test_title', 'description': 'test_description'})
+        new_project = models.project.Project.query().fetch()[0]
+        project_id = new_project.key.id()
+        response = self.testapp.post('/project/'+ str(project_id) +'/join')
+        self.assertEqual(response.status_int, 302)
+        page = self.testapp.get('/project/'+str(project_id))
+        self.assertRegexpMatches(
+            page.body,
+            'id="numbers".*\n.*<h1>1</h1>.*\n.*People Involved')
+        response = self.testapp.post('/project/'+ str(project_id) +'/leave')
+        self.assertEqual(response.status_int, 302)
+        page = self.testapp.get('/project/'+str(project_id))
+        self.assertRegexpMatches(
+            page.body,
+            'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
 
     def test_display_user(self):
         self.login()

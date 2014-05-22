@@ -220,10 +220,11 @@ class JoinProject(BaseHandler):
         """Accepts a request to join a project."""
         self.require_login()
         current_user_key = models.user.get_current_user_key()
-        models.collaborator.Collaborator(
+        models.collaborator.Collaborator.get_or_insert(
+            current_user_key.id(),
             user_key=current_user_key,
             parent=ndb.Key(models.project.Project, int(project_id))
-        ).get_or_insert()
+        )
         self.redirect_to(DisplayProject, project_id=project_id)
 
 
