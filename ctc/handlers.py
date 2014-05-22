@@ -4,10 +4,8 @@ import webapp2
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
-import models.collaborator
-import models.project
-import models.user
-from helpers import templates
+from ctc import models
+from ctc.helpers import templates
 
 
 class BaseHandler(webapp2.RequestHandler):

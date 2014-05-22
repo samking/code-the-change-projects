@@ -1,7 +1,7 @@
 """A model for the relationship between a user and a project."""
 from google.appengine.ext import ndb
 
-from models import user
+from ctc.models import user
 
 
 class Collaborator(ndb.Model):

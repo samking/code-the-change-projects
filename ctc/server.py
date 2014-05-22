@@ -3,7 +3,7 @@ import os
 
 import webapp2
 
-import handlers
+from ctc import handlers
 
 
 IS_DEV = (

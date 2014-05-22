@@ -1,7 +1,7 @@
 """Helpers for testing models."""
 
-from models import project
-from models import user
+from ctc.models import project
+from ctc.models import user
 
 
 def create_project(

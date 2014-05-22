@@ -2,10 +2,9 @@
 
 import unittest
 
-import models.project
-import models.user
-from testing import model_helpers
-from testing import testutil
+from ctc import models
+from ctc.testing import model_helpers
+from ctc.testing import testutil
 
 
 # Tests don't need docstrings, so pylint: disable=C0111

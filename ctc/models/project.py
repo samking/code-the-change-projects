@@ -1,7 +1,7 @@
 """A model for one project."""
 
 from google.appengine.ext import ndb
-from models import user as user_model
+from ctc.models import user as user_model
 
 
 class Project(ndb.Model):
