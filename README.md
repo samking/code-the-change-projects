@@ -38,13 +38,17 @@ A projects database for projects at the intersection of CS and social change.
   app engine environment and runs tests):
   `sudo easy_install NoseGAE` in Ubuntu.
 * Install `webtest` (an integration testing framework for webapps):
-  `sudo easy-install webtest` in Ubuntu.
+  `sudo easy_install webtest` in Ubuntu.
+* Install `coverage` (a tool that lets you see what code you're actually
+  testing): `sudo easy_install coverage` in Ubuntu.
 * Now, whenever you want to run tests, all you have to do is run
   `scripts/test.py` (which will run nosetests for you, looking up your app
   engine directory from your PATH).  You can also run the tests manually, but
   that would require properly setting the PYTHONPATH (eg, using
   `scripts.common.fix_app_engine_path()`).  Please make sure that you fix all
   tests before submitting code (as well as testing new features you add).
+* After testing, you should run `scripts/coverage.py` to make sure that your
+  tests actually exercise all of your code.
 
 # Style
 
