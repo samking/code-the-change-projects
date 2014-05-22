@@ -42,6 +42,9 @@ def run_lint():
     """Runs lint on all python files in the project, setting the path first."""
     common.fix_app_engine_path()
     files_to_lint = get_files_to_lint()
+    # TODO(samking): run a different lint on test files versus normal files
+    # since test files have different rules (eg, docstrings and private
+    # methods).
     pylint_command = get_pylint_command(files_to_lint)
     subprocess.call(pylint_command)
 

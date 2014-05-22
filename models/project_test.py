@@ -25,11 +25,12 @@ class ProjectTests(testutil.CtcTestCase):
         self.assertEqual(project.github, 'github')
 
     def test_get_by_owner(self):
-        user_key = models.user.User().put()
+        user_key = models.user.User(email='owner@codethechange.org').put()
         self.assertEqual(models.project.get_by_owner(user_key), [])
         project1 = model_helpers.create_project(owner_key=user_key)
         project2 = model_helpers.create_project(owner_key=user_key)
-        other_user = models.user.User().put()
+        other_user = models.user.User(
+            email='nottheowner@codethechange.org').put()
         model_helpers.create_project(owner_key=other_user)
         # Ordered by most recent.  Doesn't include the other user's project.
         expected_projects = [project2, project1]
