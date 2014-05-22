@@ -4,8 +4,10 @@ import webapp2
 from google.appengine.api import users
 from google.appengine.ext import ndb
 
-from ctc import models
 from ctc.helpers import templates
+from ctc.models import collaborator as collaborator_model
+from ctc.models import project as project_model
+from ctc.models import user as user_model
 
 
 class BaseHandler(webapp2.RequestHandler):
@@ -36,9 +38,9 @@ class DisplayDashboard(BaseHandler):
     def get(self):
         """Renders the dashboard corresponding to the logged in user"""
         self.require_login()
-        user_key = models.user.get_current_user_key()
-        owned_projects = models.project.get_by_owner(user_key)
-        contributing_projects = models.collaborator.get_projects(user_key)
+        user_key = user_model.get_current_user_key()
+        owned_projects = project_model.get_by_owner(user_key)
+        contributing_projects = collaborator_model.get_projects(user_key)
         values = {
             'logout_url': generate_logout_url(),
             'own': owned_projects,
@@ -53,8 +55,8 @@ class DisplayUser(BaseHandler):
     def get(self, user_id):
         """Renders the user page in response to a GET request."""
         self.require_login()
-        requesting_user_id = models.user.get_current_user_key().id()
-        profile_object = models.user.User.get_by_id(user_id)
+        requesting_user_id = user_model.get_current_user_key().id()
+        profile_object = user_model.User.get_by_id(user_id)
         is_profile_owner = (user_id == requesting_user_id)
         edit_link = None
         if is_profile_owner:
@@ -72,7 +74,7 @@ class EditUser(BaseHandler):
 
     def require_owner(self, user_id):
         """Aborts the current request if the user isn't the profile's owner."""
-        current_user_id = models.user.get_current_user_key().id()
+        current_user_id = user_model.get_current_user_key().id()
         if current_user_id != user_id:
             self.abort(403)
 
@@ -80,7 +82,7 @@ class EditUser(BaseHandler):
         """Renders the edit user page in response to a GET request."""
         self.require_login()
         self.require_owner(user_id)
-        profile_object = models.user.User.get_by_id(user_id)
+        profile_object = user_model.User.get_by_id(user_id)
         edit_link = self.uri_for(EditUser, user_id=user_id)
         values = {
             'profile': profile_object,
@@ -93,7 +95,7 @@ class EditUser(BaseHandler):
         """Edits the provided project."""
         self.require_login()
         self.require_owner(user_id)
-        profile_object = models.user.User.get_by_id(user_id)
+        profile_object = user_model.User.get_by_id(user_id)
         profile_object.populate(self.request).put()
         self.redirect_to(DisplayUser, user_id=user_id)
 
@@ -103,13 +105,13 @@ class DisplayProject(BaseHandler):
 
     def get(self, project_id):
         """Renders the project page in response to a GET request."""
-        project = ndb.Key(models.project.Project, int(project_id)).get()
-        user_key = models.user.get_current_user_key()
+        project = ndb.Key(project_model.Project, int(project_id)).get()
+        user_key = user_model.get_current_user_key()
         edit_link = None
         collaborator_emails = []
         # Initialize some truthy objects for the following display logic.
         is_logged_in = user_key
-        is_collaborating = models.collaborator.get_collaborator(
+        is_collaborating = collaborator_model.get_collaborator(
             user_key, project.key)
         is_project_owner = is_logged_in and project.owner_key == user_key
         should_show_collaborator_emails = is_collaborating or is_project_owner
@@ -117,8 +119,8 @@ class DisplayProject(BaseHandler):
         if is_project_owner:
             edit_link = self.uri_for(EditProject, project_id=project_id)
         if should_show_collaborator_emails:
-            collaborator_emails = models.collaborator.get_collaborator_emails(
-                    ndb.Key(models.project.Project, int(project_id))
+            collaborator_emails = collaborator_model.get_collaborator_emails(
+                    ndb.Key(project_model.Project, int(project_id))
             )
         if is_collaborating:
             action = 'Leave'
@@ -131,8 +133,8 @@ class DisplayProject(BaseHandler):
             action_link = users.create_login_url(self.request.uri)
         values = {'project': project,
                   'num_contributors':
-                      models.collaborator.get_collaborator_count(
-                          ndb.Key(models.project.Project, int(project_id))),
+                      collaborator_model.get_collaborator_count(
+                          ndb.Key(project_model.Project, int(project_id))),
                   'edit_link': edit_link,
                   'action_link': action_link,
                   'action': action,
@@ -148,14 +150,14 @@ class EditProject(BaseHandler):
 
     def require_project_owner(self, project):
         """Aborts the current request if the user isn't the project's owner."""
-        current_user_key = models.user.get_current_user_key()
+        current_user_key = user_model.get_current_user_key()
         if current_user_key != project.owner_key:
             self.abort(403)
 
     def get(self, project_id):
         """Renders the edit project page in response to a GET request."""
         self.require_login()
-        project = ndb.Key(models.project.Project, int(project_id)).get()
+        project = ndb.Key(project_model.Project, int(project_id)).get()
         self.require_project_owner(project)
         edit_link = self.uri_for(EditProject, project_id=project_id)
         values = {
@@ -167,7 +169,7 @@ class EditProject(BaseHandler):
     def post(self, project_id):
         """Edits the provided project."""
         self.require_login()
-        project = ndb.Key(models.project.Project, int(project_id)).get()
+        project = ndb.Key(project_model.Project, int(project_id)).get()
         self.require_project_owner(project)
         project.populate(self.request).put()
         self.redirect_to(DisplayProject, project_id=project_id)
@@ -178,8 +180,8 @@ class ListProjects(BaseHandler):
 
     def get(self):
         """Renders the projects page in response to a GET request."""
-        query = models.project.Project.query()
-        query = query.order(models.project.Project.updated_date)
+        query = project_model.Project.query()
+        query = query.order(project_model.Project.updated_date)
         projects = query.fetch()
         links = []
         for curr_project in projects:
@@ -204,8 +206,8 @@ class NewProject(BaseHandler):
     def post(self):
         """Accepts a request to create a new project."""
         self.require_login()
-        current_user_key = models.user.get_current_user_key()
-        new_project = models.project.Project().populate(self.request)
+        current_user_key = user_model.get_current_user_key()
+        new_project = project_model.Project().populate(self.request)
         new_project.owner_key = current_user_key
         new_project_key = new_project.put()
         self.redirect_to(DisplayProject, project_id=new_project_key.id())
@@ -217,10 +219,10 @@ class JoinProject(BaseHandler):
     def post(self, project_id):
         """Accepts a request to join a project."""
         self.require_login()
-        current_user_key = models.user.get_current_user_key()
-        models.collaborator.Collaborator(
+        current_user_key = user_model.get_current_user_key()
+        collaborator_model.Collaborator(
             user_key=current_user_key,
-            parent=ndb.Key(models.project.Project, int(project_id))
+            parent=ndb.Key(project_model.Project, int(project_id))
         ).get_or_insert()
         self.redirect_to(DisplayProject, project_id=project_id)
 
@@ -231,9 +233,9 @@ class LeaveProject(BaseHandler):
     def post(self, project_id):
         """Accepts a request to leave a project."""
         self.require_login()
-        current_user_key = models.user.get_current_user_key()
-        collaborator = models.collaborator.get_collaborator(
-            current_user_key, ndb.Key(models.project.Project, int(project_id)))
+        current_user_key = user_model.get_current_user_key()
+        collaborator = collaborator_model.get_collaborator(
+            current_user_key, ndb.Key(project_model.Project, int(project_id)))
         if collaborator:
             collaborator.key.delete()
         self.redirect_to(DisplayProject, project_id=project_id)

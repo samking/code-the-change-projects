@@ -2,7 +2,8 @@
 
 import unittest
 
-from ctc import models
+from ctc.models import project as project_model
+from ctc.models import user as user_model
 from ctc.testing import model_helpers
 from ctc.testing import testutil
 
@@ -14,7 +15,7 @@ class ProjectTests(testutil.CtcTestCase):
         fields = {'title': 'title', 'description': 'description',
                   'lead': 'lead', 'tech_objectives': 'tech_objectives',
                   'github': 'github'}
-        project = models.project.Project()
+        project = project_model.Project()
         populated_project = project.populate(fields)
         self.assertEqual(project, populated_project)
         self.assertEqual(project.title, 'title')
@@ -24,16 +25,16 @@ class ProjectTests(testutil.CtcTestCase):
         self.assertEqual(project.github, 'github')
 
     def test_get_by_owner(self):
-        user_key = models.user.User(email='owner@codethechange.org').put()
-        self.assertEqual(models.project.get_by_owner(user_key), [])
+        user_key = user_model.User(email='owner@codethechange.org').put()
+        self.assertEqual(project_model.get_by_owner(user_key), [])
         project1 = model_helpers.create_project(owner_key=user_key)
         project2 = model_helpers.create_project(owner_key=user_key)
-        other_user = models.user.User(
+        other_user = user_model.User(
             email='nottheowner@codethechange.org').put()
         model_helpers.create_project(owner_key=other_user)
         # Ordered by most recent.  Doesn't include the other user's project.
         expected_projects = [project2, project1]
-        actual_projects = models.project.get_by_owner(user_key)
+        actual_projects = project_model.get_by_owner(user_key)
         self.assertEqual(expected_projects, actual_projects)
 
 

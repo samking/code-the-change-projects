@@ -8,8 +8,10 @@ import unittest
 
 import webtest
 
-from ctc import models
 from ctc import server
+from ctc.models import collaborator as collaborator_model
+from ctc.models import project as project_model
+from ctc.models import user as user_model
 from ctc.testing import model_helpers
 from ctc.testing import testutil
 
@@ -24,7 +26,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def login(self):
         """Creates a user, logs in, and returns the user."""
-        user = models.user.User(id='12345',
+        user = user_model.User(id='12345',
                                 email='test@codethechange.org')
         user.put()
         self.testbed.setup_env(
@@ -45,14 +47,14 @@ class FunctionalTests(testutil.CtcTestCase):
     def test_post_new_project(self):
         self.login()
         # There should be no projects to start.
-        self.assertEqual(models.project.Project.query().count(), 0)
+        self.assertEqual(project_model.Project.query().count(), 0)
         response = self.testapp.post('/project/new', {
             'title': 'test_title', 'description': 'test_description'})
         # There should be a new project created.
-        self.assertEqual(models.project.Project.query().count(), 1)
+        self.assertEqual(project_model.Project.query().count(), 1)
         # It should redirect to the page displaying the project.
         self.assertEqual(response.status_int, 302)
-        new_project = models.project.Project.query().fetch()[0]
+        new_project = project_model.Project.query().fetch()[0]
         self.assertTrue(
             response.location.endswith('/%d' % new_project.key.id()))
         # The project should have the corect title and description.
@@ -87,7 +89,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_only_creator_can_edit_project(self):
         self.login()
-        other_user = models.user.User(email='anotheruser@codethechange.org')
+        other_user = user_model.User(email='anotheruser@codethechange.org')
         other_user.put()
         project = model_helpers.create_project(owner_key=other_user.key)
         project_id = project.key.id()
@@ -110,7 +112,7 @@ class FunctionalTests(testutil.CtcTestCase):
             project_page.body,
             'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
         # Add a collaborator and check to see the count increments.
-        collab = models.collaborator.Collaborator(
+        collab = collaborator_model.Collaborator(
             user_key=user_key, parent=project.key)
         collab.put()
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
@@ -127,7 +129,7 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('Login to', project_page.body)
         # Now, make the user a collaborator and verify the emails are present.
         user_key = self.login().key
-        collab = models.collaborator.Collaborator(
+        collab = collaborator_model.Collaborator(
             user_key=user_key, parent=project.key)
         collab.put()
         project_page = self.testapp.get('/project/%d' % project_id, status=200)
@@ -162,7 +164,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_display_user(self):
         self.login()
-        profile = models.user.User(
+        profile = user_model.User(
             id='123',
             email='testprofile@codethechange.org',
             biography='i am awesome',
@@ -198,7 +200,7 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_only_owner_can_edit_profile(self):
         self.login()
-        other_profile = models.user.User(
+        other_profile = user_model.User(
             id='222222',
             email='testprofile@codethechange.org',
             biography='i am awesome',

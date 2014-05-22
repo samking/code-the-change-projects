@@ -9,7 +9,6 @@ class Collaborator(ndb.Model):
     user_key = ndb.KeyProperty(required=True, kind=user.User)
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
 
-
     def _pre_put_hook(self):
         """Raises an exception if a new collaborator does not have a parent."""
         assert self.key.parent(), "No parent project for this collaborator."
