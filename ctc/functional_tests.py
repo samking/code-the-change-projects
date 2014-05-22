@@ -162,6 +162,24 @@ class FunctionalTests(testutil.CtcTestCase):
             page = self.testapp.post(url, status=302)
             self.assertIn('Login', page.location)
 
+
+    def test_join_and_leave_project(self):
+        self.login()
+        self.testapp.post('/project/new', {
+            'title': 'test_title', 'description': 'test_description'})
+        new_project = models.project.Project.query().fetch()[0]
+        project_id = new_project.key.id()
+        response = self.testapp.post('/project/' + str(project_id) + '/join', status=302)
+        page = self.testapp.get('/project/' + str(project_id))
+        self.assertRegexpMatches(
+            page.body,
+            'id="numbers".*\n.*<h1>1</h1>.*\n.*People Involved')
+        response = self.testapp.post('/project/'+ str(project_id) + '/leave', status=302)
+        page = self.testapp.get('/project/' + str(project_id))
+        self.assertRegexpMatches(
+            page.body,
+            'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
+
     def test_display_user(self):
         self.login()
         profile = user_model.User(
