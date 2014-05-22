@@ -167,14 +167,14 @@ class FunctionalTests(testutil.CtcTestCase):
         self.login()
         self.testapp.post('/project/new', {
             'title': 'test_title', 'description': 'test_description'})
-        new_project = models.project.Project.query().fetch()[0]
+        new_project = project_model.Project.query().fetch()[0]
         project_id = new_project.key.id()
-        response = self.testapp.post('/project/' + str(project_id) + '/join', status=302)
+        self.testapp.post('/project/' + str(project_id) + '/join', status=302)
         page = self.testapp.get('/project/' + str(project_id))
         self.assertRegexpMatches(
             page.body,
             'id="numbers".*\n.*<h1>1</h1>.*\n.*People Involved')
-        response = self.testapp.post('/project/'+ str(project_id) + '/leave', status=302)
+        self.testapp.post('/project/'+ str(project_id) + '/leave', status=302)
         page = self.testapp.get('/project/' + str(project_id))
         self.assertRegexpMatches(
             page.body,

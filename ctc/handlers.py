@@ -223,7 +223,7 @@ class JoinProject(BaseHandler):
         collaborator_model.Collaborator.get_or_insert(
             current_user_key.id(),
             user_key=current_user_key,
-            parent=ndb.Key(models.project.Project, int(project_id))
+            parent=ndb.Key(project_model.Project, int(project_id))
         )
         self.redirect_to(DisplayProject, project_id=project_id)
 
