@@ -135,13 +135,6 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertIn('email', project_page.body)
         self.assertIn('@', project_page.body)
 
-<<<<<<< HEAD
-=======
-
-<<<<<<< HEAD
->>>>>>> fixed posting crash and added functionality test to catch it
-=======
->>>>>>> 4cf2ce6ed3755b08fa8a6fd0689d7749afcd66ca
     def test_get_main_page(self):
         main_page = self.testapp.get('/', status=200)
         self.assertIn('Code the Change', main_page.body)
