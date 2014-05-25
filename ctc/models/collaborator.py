@@ -1,14 +1,13 @@
 """A model for the relationship between a user and a project."""
 from google.appengine.ext import ndb
 
-from models import user
+from ctc.models import user as user_model
 
 
 class Collaborator(ndb.Model):
     """A model for relationship between a user and a project."""
-    user_key = ndb.KeyProperty(required=True, kind=user.User)
+    user_key = ndb.KeyProperty(required=True, kind=user_model.User)
     created_date = ndb.DateTimeProperty(required=True, auto_now_add=True)
-
 
     def _pre_put_hook(self):
         """Raises an exception if a new collaborator does not have a parent."""
