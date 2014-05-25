@@ -168,32 +168,35 @@ class FunctionalTests(testutil.CtcTestCase):
             page = self.testapp.get(url, status=200)
             self.assertIn('csrf_token', page.body)
 
-
     def test_join_and_leave_project(self):
         self.login()
+        # Make a project.
+        new_project_token = csrf.make_token('/project/new')
         self.testapp.post('/project/new', {
-            'title': 'test_title', 'description': 'test_description'})
+            'title': 'test_title', 'description': 'test_description',
+            'csrf_token': new_project_token})
         new_project = project_model.Project.query().fetch()[0]
         project_id = new_project.key.id()
-        self.testapp.post('/project/' + str(project_id) + '/join', status=302)
+        # Join the project.
+        join_path = '/project/%d/join' % project_id
+        join_token = csrf.make_token(join_path)
+        self.testapp.post(join_path, {'csrf_token': join_token}, status=302)
         page = self.testapp.get('/project/' + str(project_id))
         self.assertRegexpMatches(
-            page.body,
-            'id="numbers".*\n.*<h1>1</h1>.*\n.*People Involved')
-        self.testapp.post('/project/'+ str(project_id) + '/leave', status=302)
+            page.body, 'id="numbers".*\n.*<h1>1</h1>.*\n.*People Involved')
+        # Leave the project.
+        leave_path = '/project/%d/leave' % project_id
+        leave_token = csrf.make_token(leave_path)
+        self.testapp.post(leave_path, {'csrf_token': leave_token}, status=302)
         page = self.testapp.get('/project/' + str(project_id))
         self.assertRegexpMatches(
-            page.body,
-            'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
+            page.body, 'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
 
     def test_display_user(self):
         self.login()
         profile = user_model.User(
-            id='123',
-            email='testprofile@codethechange.org',
-            biography='i am awesome',
-            website='github!'
-        )
+            id='123', email='testprofile@codethechange.org',
+            biography='i am awesome', website='github!')
         profile.put()
         profile_id = profile.key.id()
         page = self.testapp.get('/user/%d' % int(profile_id), status=200)
@@ -223,11 +226,12 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_only_owner_can_edit_profile(self):
         self.login()
-        other_profile_key = models.user.User(
+        other_profile_key = user_model.User(
             id='222222', email='testprofile@codethechange.org',
             biography='i am awesome', website='github!').put()
         other_id = other_profile_key.id()
         self.testapp.post('/user/%s/edit' % other_id, status=403)
+
 
 if __name__ == '__main__':
     unittest.main()
