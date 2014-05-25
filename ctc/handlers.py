@@ -85,10 +85,9 @@ class EditUser(BaseHandler):
         profile_object = user_model.User.get_by_id(user_id)
         edit_link = self.uri_for(EditUser, user_id=user_id)
         values = {
-            'profile': profile_object,
-            'action_link': edit_link,
-            'action': 'Update',
-            'logout_url': generate_logout_url()}
+            'profile': profile_object, 'action_link': edit_link,
+            'action': 'Update', 'logout_url': generate_logout_url(),
+            'csrf_token': self.csrf_token}
         self.response.write(templates.render('edit_user.html', values))
 
     def post(self, user_id):

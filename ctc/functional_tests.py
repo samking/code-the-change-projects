@@ -79,6 +79,16 @@ class FunctionalTests(testutil.CtcTestCase):
         self.assertEqual(edited_project.title, 'goodbye')
         self.assertEqual(edited_project.description, '')
 
+    def test_edit_project_requires_owner(self):
+        # Create the project before logging in so that the project owner is
+        # different from the currently-logged-in user.
+        project = model_helpers.create_project()
+        self.login()
+        path = '/project/%d/edit' % project.key.id()
+        self.testapp.get(path, status=403)
+        csrf_token = csrf.make_token(path)
+        self.testapp.post(path, {'csrf_token': csrf_token}, status=403)
+
     def test_only_creator_can_edit_project(self):
         self.login()
         other_user = user_model.User(email='anotheruser@codethechange.org')
@@ -131,6 +141,11 @@ class FunctionalTests(testutil.CtcTestCase):
     def test_get_main_page(self):
         main_page = self.testapp.get('/', status=200)
         self.assertIn('Code the Change', main_page.body)
+
+    def test_get_dashboard(self):
+        self.login()
+        dashboard = self.testapp.get('/dashboard', status=200)
+        self.assertIn('Projects I Own', dashboard.body)
 
     def test_analytics(self):
         page = self.testapp.get('/')
@@ -191,6 +206,12 @@ class FunctionalTests(testutil.CtcTestCase):
         page = self.testapp.get('/project/' + str(project_id))
         self.assertRegexpMatches(
             page.body, 'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
+        # Leaving the project when not a collaborator shouldn't cause any
+        # problems.
+        self.testapp.post(leave_path, {'csrf_token': leave_token}, status=302)
+        page = self.testapp.get('/project/' + str(project_id))
+        self.assertRegexpMatches(
+            page.body, 'id="numbers".*\n.*<h1>0</h1>.*\n.*People Involved')
 
     def test_display_user(self):
         self.login()
@@ -199,18 +220,25 @@ class FunctionalTests(testutil.CtcTestCase):
             biography='i am awesome', website='github!')
         profile.put()
         profile_id = profile.key.id()
-        page = self.testapp.get('/user/%d' % int(profile_id), status=200)
+        page = self.testapp.get('/user/%s' % profile_id, status=200)
         self.assertIn('i am awesome', page.body)
         self.assertIn('github!', page.body)
         self.assertNotIn('Secondary Contact', page.body)
         self.assertNotIn('Edit', page.body)
 
+    def test_display_user_for_owner(self):
+        user = self.login()
+        user.biography = 'i own this'
+        user.put()
+        page = self.testapp.get('/user/%s' % user.key.id(), status=200)
+        self.assertIn('i own this', page.body)
+        self.assertIn('Edit Your Profile', page.body)
+
     def test_edit_user(self):
         user_profile = self.login()
         profile_id = user_profile.key.id()
-        page = self.testapp.get('/user/%d' % int(profile_id), status=200)
-        self.assertIn('test@codethechange.org', page.body)
-        self.assertIn('Edit', page.body)
+        page = self.testapp.get('/user/%s/edit' % profile_id, status=200)
+        self.assertIn('Secondary Contact', page.body)
 
     def test_post_edit_user(self):
         user_profile = self.login()
@@ -230,7 +258,9 @@ class FunctionalTests(testutil.CtcTestCase):
             id='222222', email='testprofile@codethechange.org',
             biography='i am awesome', website='github!').put()
         other_id = other_profile_key.id()
-        self.testapp.post('/user/%s/edit' % other_id, status=403)
+        edit_path = '/user/%s/edit' % other_id
+        csrf_token = csrf.make_token(edit_path)
+        self.testapp.post(edit_path, {'csrf_token': csrf_token}, status=403)
 
 
 if __name__ == '__main__':
