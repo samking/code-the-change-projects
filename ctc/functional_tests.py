@@ -153,12 +153,16 @@ class FunctionalTests(testutil.CtcTestCase):
 
     def test_login_required(self):
         project = model_helpers.create_project()
+        user_key = user_model.User(email='test@codethechange.org').put()
         display_project = '/project/%d' % project.key.id()
+        display_user = '/user/%s' % user_key.id()
         login_required_get_urls = [
-            '/dashboard', '/project/new', display_project + '/edit']
+            '/dashboard', '/project/new', display_project + '/edit',
+            display_user, display_user + '/edit']
         login_required_post_urls = [
             '/project/new', display_project + '/edit',
-            display_project + '/join', display_project + '/leave']
+            display_project + '/join', display_project + '/leave',
+            display_user + '/edit']
         login_not_required_urls = ['/', '/projects', display_project]
         for url in login_not_required_urls:
             self.testapp.get(url, status=200)
@@ -174,11 +178,14 @@ class FunctionalTests(testutil.CtcTestCase):
     # TODO(samking): add end to end tests (eg, go to the GET page and then send
     # the POST to use the actual hidden field).
     def test_forms_have_csrf_tokens(self):
-        self.login()
+        user = self.login()
         project = model_helpers.create_project()
         display_project = '/project/%d' % project.key.id()
+        display_user = '/user/%s' % user.key.id()
         # These URLs have forms that should have CSRF tokens in them.
-        form_urls = ['/project/new', display_project, display_project + '/edit']
+        form_urls = [
+            '/project/new', display_project, display_project + '/edit',
+            display_user + '/edit']
         for url in form_urls:
             page = self.testapp.get(url, status=200)
             self.assertIn('csrf_token', page.body)
