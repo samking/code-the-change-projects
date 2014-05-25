@@ -7,7 +7,7 @@ import webtest
 
 from google.appengine.ext import testbed
 
-import models.user
+from ctc.models import user as user_model
 
 
 class CtcTestCase(unittest.TestCase):
@@ -30,7 +30,7 @@ class CtcTestCase(unittest.TestCase):
     def login(self):
         """Creates a user, logs in, and returns the user."""
         if not self.logged_in_user:
-            self.logged_in_user = models.user.User(
+            self.logged_in_user = user_model.User(
                 id='12345', email='test@codethechange.org')
             self.logged_in_user.put()
         self.testbed.setup_env(

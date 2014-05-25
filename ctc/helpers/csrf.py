@@ -51,7 +51,7 @@ class SecretKey(ndb.Model):
     """A secret key for use with CSRF tokens."""
 
     secret_key = ndb.BlobProperty(required=True)
-    
+
 
 class CsrfHandler(webapp2.RequestHandler):
     """A request handler that is CSRF-safe.

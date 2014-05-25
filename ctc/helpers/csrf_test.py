@@ -6,11 +6,12 @@ import mock
 import webapp2
 import webtest
 
-from helpers import csrf
-from testing import testutil
+from ctc.helpers import csrf
+from ctc.testing import testutil
 
 
 MOCKED_TIME = 123
+
 
 # Tests don't need docstrings, so pylint: disable=C0111
 # Tests can test protected members, so pylint: disable=W0212
@@ -44,7 +45,7 @@ class CsrfTests(testutil.CtcTestCase):
         self.testapp = webtest.TestApp(app)
 
     def test_get_secret_key(self):
-        first_key = csrf._get_secret_key() 
+        first_key = csrf._get_secret_key()
         self.assertEqual(len(first_key), 32)
         second_key = csrf._get_secret_key()
         self.assertEqual(first_key, second_key)
@@ -56,7 +57,6 @@ class CsrfTests(testutil.CtcTestCase):
         self.assertFalse(csrf._tokens_are_equal('abcde', 'abcdf'))
         # It should succeed if the tokens are the same.
         self.assertTrue(csrf._tokens_are_equal('abcde', 'abcde'))
-
 
     # Make Token
 
