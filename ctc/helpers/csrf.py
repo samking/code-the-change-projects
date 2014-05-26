@@ -56,11 +56,15 @@ class SecretKey(ndb.Model):
 class CsrfHandler(webapp2.RequestHandler):
     """A request handler that is CSRF-safe.
 
-    Specifically, all GET requests will have self.csrf_token, which they can
-    embed in any forms for the same URL, and all mutator requests (POST, PUT,
-    DELETE) will validate their CSRF token.  An app that follows HTTP method
-    conventions (GET, HEAD, OPTIONS, and TRACE don't have side effects) should
-    be safe.
+    Specifically:
+    * All GET requests will have self.csrf_token, which they can embed in any
+      forms for the same URL.  Also, this token will be put in
+      self.values['csrf_token'], so if you use a templating system like Jinja2
+      that takes a dict of values, you can easily use this dict.
+    * All mutator requests (POST, PUT, DELETE) will validate their CSRF token.
+
+    Thus, an app that follows HTTP method conventions (GET, HEAD, OPTIONS, and
+    TRACE don't have side effects) should be safe.
 
     If you use this, you will need to manually put the CSRF token into your
     forms.  Also, if you have any forms that POST to a different URL than the
@@ -71,12 +75,14 @@ class CsrfHandler(webapp2.RequestHandler):
     def __init__(self, *args, **kwargs):
         super(CsrfHandler, self).__init__(*args, **kwargs)
         self.csrf_token = None
+        self.values = {}
 
     def dispatch(self):
         """Make a CSRF token for GET requests and verify it for mutators."""
         method = self.request.method
         if method == 'GET':
             self.csrf_token = make_token()
+            self.values['csrf_token'] = self.csrf_token
         if method == 'POST' or method == 'PUT' or method == 'DELETE':
             if not token_is_valid(self.request.get('csrf_token')):
                 self.abort(403, detail=CSRF_ERROR_MESSAGE)
