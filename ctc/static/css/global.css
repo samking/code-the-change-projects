@@ -26,3 +26,8 @@ body {
 .plain-text {
   white-space: pre-wrap;
 }
+
+/* Used for form validation errors. */
+.error {
+  color: red;
+}

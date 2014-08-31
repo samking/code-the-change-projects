@@ -3,7 +3,7 @@
 {% block body %}
   <h1>{{ action }} Project</h1>
   <hr>
-  <form action="{{ action_link }}" method="post">
+  <form id="project-form" action="{{ action_link }}" method="post">
     {{ make_csrf_input(csrf_token) }}
     <div class="col-md-8 project-form">
       {# TODO(samking): This is repetitive.  Use a for loop or something. #}
@@ -11,13 +11,14 @@
       <div class="input-group input-large">
         <input type="text" class="form-control" name="name"
                placeholder="Enter a name for your project."
-               value="{{ project and project.name }}">
+               value="{{ project and project.name }}" required>
       </div>
 
       <h3>Two Sentence Overview</h3>
       <div class="input-group input-large">
         <textarea class="form-control" rows="2" name="overview"
-                  placeholder="Write a short description of your project.">
+                  placeholder="Write a short description of your project."
+                  required>
           {{- project and project.overview -}}
         </textarea>
       </div>
@@ -26,7 +27,7 @@
       <div class="input-group input-large">
         <input type="text" class="form-control" name="organization_name"
                placeholder="Who is behind the project?"
-               value="{{ project and project.organization_name }}">
+               value="{{ project and project.organization_name }}" required>
       </div>
 
       <h3>Mission</h3>
@@ -36,7 +37,7 @@
            placeholder="{{
              'Feel free to put any information here about your organization.  '
              'Some people may be interested in what problems are you working on, '
-             'who your beneficiaries are, etc.' }}">
+             'who your beneficiaries are, etc.' }}" required>
           {{- project and project.organization_mission -}}
         </textarea>
       </div>
@@ -44,14 +45,15 @@
       <h3>Contact Info</h3>
       <div class="input-group input-large">
         <textarea class="form-control" rows="2" name="organization_contact"
-                  placeholder="How should interested volunteers contact you?">
+                  placeholder="How should interested volunteers contact you?"
+                  required>
           {{- project and project.organization_contact -}}
         </textarea>
       </div>
 
       <h3>Project Description</h3>
       <div class="input-group input-large">
-        <textarea class="form-control" rows="12" name="details">
+        <textarea class="form-control" rows="12" name="details" required>
           {%- if project and project.details -%}
             {{- project.details -}}
           {# Inline the helper text so that they can fill it in as they go. #}
@@ -70,16 +72,16 @@ Describe your project.  You can do this however you feel is appropriate, but you
 
       <h3>Collaboration Link</h3>
       <div class="input-group input-large">
-        <input type="text" class="form-control" name="collaboration_link"
+        <input type="url" class="form-control" name="collaboration_link"
                placeholder="Link to a Google Doc or some other way for volunteers to easily collaborate."
-               value="{{ project and project.collaboration_link }}">
+               value="{{ project and project.collaboration_link }}" required>
       </div>
 
       <h3>Code Link</h3>
       <div class="input-group input-large">
-        <input type="text" class="form-control" name="code_link"
+        <input class="form-control" name="code_link"
                placeholder="If you already have a code repo (eg, GitHub) set up for your project, link to it here."
-               value="{{ project and project.code_link }}">
+               value="{{ project and project.code_link }}" type="url">
       </div>
 
       <div>
@@ -113,4 +115,8 @@ Describe your project.  You can do this however you feel is appropriate, but you
       </ul>
     </div>
   </div>
+
+  <script>
+    $('#project-form').validate();
+  </script>
 {% endblock body %}
