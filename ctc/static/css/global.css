@@ -21,3 +21,8 @@ body {
 #project-header .jumbotron {
   border-radius: 6px;
 }
+
+/* Used for fields that the user entered as plain text. */
+.plain-text {
+  white-space: pre-wrap;
+}

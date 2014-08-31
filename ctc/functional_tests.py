@@ -29,8 +29,8 @@ class FunctionalTests(testutil.CtcTestCase):
         # It should have the POST link.
         self.assertIn('post', response.body)
         # It should have a field for title and description.
-        self.assertIn('Title', response.body)
-        self.assertIn('Description', response.body)
+        self.assertIn('Name', response.body)
+        self.assertIn('Overview', response.body)
 
     def test_post_new_project(self):
         self.login()
@@ -38,7 +38,7 @@ class FunctionalTests(testutil.CtcTestCase):
         # There should be no projects to start.
         self.assertEqual(project_model.Project.query().count(), 0)
         response = self.testapp.post('/project/new', {
-            'title': 'test_title', 'description': 'test_description',
+            'name': 'test_name', 'overview': 'test_overview',
             'csrf_token': csrf_token})
         # There should be a new project created.
         self.assertEqual(project_model.Project.query().count(), 1)
@@ -47,9 +47,9 @@ class FunctionalTests(testutil.CtcTestCase):
         new_project = project_model.Project.query().fetch()[0]
         self.assertTrue(
             response.location.endswith('/%d' % new_project.key.id()))
-        # The project should have the corect title and description.
-        self.assertEqual(new_project.title, 'test_title')
-        self.assertEqual(new_project.description, 'test_description')
+        # The project should have the corect name and description.
+        self.assertEqual(new_project.name, 'test_name')
+        self.assertEqual(new_project.overview, 'test_overview')
 
     def test_list_projects(self):
         model_helpers.create_project('hello')
@@ -73,11 +73,11 @@ class FunctionalTests(testutil.CtcTestCase):
         csrf_token = csrf.make_token('/project/%d/edit' % project_id)
         response = self.testapp.post(
             '/project/%d/edit' % project_id,
-            {'title': 'goodbye', 'csrf_token': csrf_token}, status=302)
+            {'name': 'goodbye', 'csrf_token': csrf_token}, status=302)
         self.assertTrue(response.location.endswith('/%d' % project_id))
         edited_project = project.key.get()
-        self.assertEqual(edited_project.title, 'goodbye')
-        self.assertEqual(edited_project.description, '')
+        self.assertEqual(edited_project.name, 'goodbye')
+        self.assertEqual(edited_project.overview, '')
 
     def test_edit_project_requires_owner(self):
         # Create the project before logging in so that the project owner is

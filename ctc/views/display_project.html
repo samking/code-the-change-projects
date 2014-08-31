@@ -3,19 +3,30 @@
 {% block body %}
   <div id="project-header">
     <div class="jumbotron">
-      <h1>{{ project.title }}</h1>
-      <p class="lead">{{ project.lead }}</p>
+      <h1>{{ project.name }}</h1>
+      <p class="lead">{{ project.overview }}</p>
     </div>
 
     <div class="col-xs-8">
       {% if edit_link %}
         <a href="{{ edit_link }}"><button class="btn btn-primary" id="button-edit">Edit Your Project</button></a>
       {% endif %}
-      <h2>Project Objectives</h2>
-      <p>{{ project.description }}</p>
-      <h2>Technical Objectives</h2>
-      <p>{{ project.tech_objectives }}</p>
-      <p>{{ project.github }}</p>
+      <h2>{{ project.organization_name }}</h2>
+      <p class="plain-text">{{ project.organization_mission }}</p>
+      <p><strong>Contact Info</strong></p>
+      <p class="plain-text">{{ project.organization_contact }}</p>
+      <h2>Technical Details</h2>
+      {% if project.code_link %}
+        <p>
+          <strong>Code:</strong>
+          <a href="{{ project.code_link }}">{{ project.code_link }}</a>
+        </p>
+      {% endif %}
+      <p>
+        <strong>Collaboration:</strong>
+        <a href="{{ project.collaboration_link }}">{{ project.collaboration_link }}</a>
+      </p>
+      <p class="plain-text">{{ project.details }}</p>
     </div>
 
     <div class="col-xs-4">
@@ -34,7 +45,6 @@
             <div><input class="btn btn-primary btn-lg" type='submit' value='{{ action }} the Team'></div>
           </form>
         {% endif %}
-        <p><a class="btn btn-primary btn-lg" role="button">Contribute Code</a></p>
       </div>
     </div>
   </div> {# project-header #}

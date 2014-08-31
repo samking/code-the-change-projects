@@ -7,73 +7,79 @@
     {{ make_csrf_input(csrf_token) }}
     <div class="col-md-8 project-form">
       {# TODO(samking): This is repetitive.  Use a for loop or something. #}
-      <h3>Title</h3>
+      <h3>Project Name</h3>
       <div class="input-group input-large">
-        <input type="text" class="form-control" name="title"
-               placeholder="Enter a title for your project."
-               value="{{ project and project.title }}">
+        <input type="text" class="form-control" name="name"
+               placeholder="Enter a name for your project."
+               value="{{ project and project.name }}">
       </div>
 
-      <h3>Category</h3>
+      <h3>Two Sentence Overview</h3>
       <div class="input-group input-large">
-        {# TODO: when you type something, autocomplete will search for a
-        pre-existing category. When you have entered a category that doesn't
-        exist, website will try to find a category that is not there, and
-        otherwise will produce a warning #}
-        <input type="text" class="form-control" name="category"
-               placeholder="Enter a category..."
-               value="{{ project and project.category }}">
-      </div>
-
-      <h3>Project Objective</h3>
-      <div class="input-group input-large">
-        <input type="text" class="form-control" name="lead"
-               placeholder="Enter the objective for the project. Maximum 200 characters."
-               value="{{ project and project.lead }}">
-      </div>
-
-      <h3>Github Page</h3>
-      <div class="input-group input-large">
-        <input type="text" class="form-control" name="github"
-               placeholder="Enter a Github page for your project if it exists."
-               value="{{ project and project.github }}">
-      </div>
-
-      <h3>Organization</h3>
-      <div class="input-group input-large">
-        <input type="text" class="form-control" name="organization"
-               placeholder="Enter a name for your organization."
-               value="{{ project and project.organization }}">
-      </div>
-
-      <h3>People Involved</h3>
-      <div class="input-group input-large">
-        <input type="text" class="form-control" name="contributors"
-               placeholder="Enter others who are involved with this project."
-               value="{{ project and project.contributors }}">
-      </div>
-
-      <h3>Description</h3>
-      <div class="input-group input-large">
-        <textarea class="form-control" rows="5" name="description"
-                  placeholder="Enter a description. What do you plan to achieve with this project?">
-          {{- project and project.description -}}
+        <textarea class="form-control" rows="2" name="overview"
+                  placeholder="Write a short description of your project.">
+          {{- project and project.overview -}}
         </textarea>
       </div>
 
-      <h3>Technical Objectives</h3>
+      <h3>Organization Name</h3>
       <div class="input-group input-large">
-        <textarea class="form-control" rows="5" name="tech_objectives"
-                  placeholder="Enter examples of coding knowledge necessary to accomplish this project.">
-          {{- project and project.tech_objectives -}}
+        <input type="text" class="form-control" name="organization_name"
+               placeholder="Who is behind the project?"
+               value="{{ project and project.organization_name }}">
+      </div>
+
+      <h3>Mission</h3>
+      <div class="input-group input-large">
+        <textarea
+           class="form-control" rows="5" name="organization_mission"
+           placeholder="{{
+             'Feel free to put any information here about your organization.  '
+             'Some people may be interested in what problems are you working on, '
+             'who your beneficiaries are, etc.' }}">
+          {{- project and project.organization_mission -}}
         </textarea>
       </div>
 
-      <h3>Tags</h3>
+      <h3>Contact Info</h3>
       <div class="input-group input-large">
-        <input type="text" class="form-control" name="tags"
-               placeholder="Enter some tags. EX: music, social, art education..."
-               value="{{ project and project.tags }}">
+        <textarea class="form-control" rows="2" name="organization_contact"
+                  placeholder="How should interested volunteers contact you?">
+          {{- project and project.organization_contact -}}
+        </textarea>
+      </div>
+
+      <h3>Project Description</h3>
+      <div class="input-group input-large">
+        <textarea class="form-control" rows="12" name="details">
+          {%- if project and project.details -%}
+            {{- project.details -}}
+          {# Inline the helper text so that they can fill it in as they go. #}
+          {%- else -%}
+Describe your project.  You can do this however you feel is appropriate, but you may want to include details such as:
+* What impact will it have?
+* What technical skills are required (programming languages, frameworks)?
+* What is the timeframe on the project (do you need it done by a certain date?)
+* What work, if any, has already been done on the project?
+* What should the design look like?  If you can link to some mocks (hand drawn is fine!), that would be a big help!
+* How do you expect users to use the project?  If you have done user interviews or have put together any of this information, link to it.
+* Do you already have technical people on your team?
+          {%- endif -%}
+        </textarea>
+      </div>
+
+      <h3>Collaboration Link</h3>
+      <div class="input-group input-large">
+        <input type="text" class="form-control" name="collaboration_link"
+               placeholder="Link to a Google Doc or some other way for volunteers to easily collaborate."
+               value="{{ project and project.collaboration_link }}">
+      </div>
+
+      <h3>Code Link</h3>
+      <div class="input-group input-large">
+        <input type="text" class="form-control" name="code_link"
+               placeholder="If you already have a code repo (eg, GitHub) set up for your project, link to it here."
+               value="{{ project and project.code_link }}">
       </div>
 
       <div>
@@ -91,11 +97,20 @@
       <br>
       <p>Thanks for using Code the Change Projects! We have a few guidelines, however:</p>
       <ul>
-        <li><strong>Each submission should be an actual project.</strong> Projects should have a clearly defined beginning and end.</li>
-        <li><strong>Each project should have some relevance to software development.</strong> We unfortunately do not have the capabilities to support a broader range of projects.</li>
-        <li><strong>Projects cannot ask for funds.</strong> Code the change is a non-profit organization.</li>
+        <li>
+          <strong>Each submission should be an actual project.</strong>
+          Projects should have a clearly defined beginning and end.
+        </li>
+        <li>
+          <strong>Each project should have some relevance to software development.</strong>
+          Programming, software design, algorithms, and data analysis are the
+          main areas we focus on.
+        <li>
+          <strong>Projects should have a social mission.</strong>
+          Our community is oriented around supporting nonprofits, social
+          enterprises, and the public sector.
+        </li>
       </ul>
-      If you have any questions, please contact this non-existent email.
     </div>
   </div>
 {% endblock body %}

@@ -2,7 +2,7 @@
 {% block body %}
   <ul>
     {% for project, link in projects_and_links %}
-      <li><a href="{{ link }}">{{ project.title }}</a></li>
+      <li><a href="{{ link }}">{{ project.name }}</a></li>
     {% endfor %}
   </ul>
 {% endblock body %}
