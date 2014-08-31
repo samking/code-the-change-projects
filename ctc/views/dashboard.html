@@ -1,16 +1,50 @@
 {% extends "base.html" %}
 {% block body %}
   <h2>Projects I Own</h2>
-  <ul class="list-unstyled owned-list">
     {% for project in own %}
-      <li><a href="/project/{{ project.key.id() }}">{{ project.title }}</a></li>
+      <div class="row">
+          <div class="col-md-4 h4">
+              <a href="/project/{{ project.key.id() }}">{{ project.title }}</a>
+          </div>
+          <div class="col-md-2 h4">
+             {% if project.code_link %}
+                  <small>
+                    <a href="{{ project.code_link }}">Contribute Code</a>
+                  </small>
+             {% endif %}
+          </div>
+          <div class="col-md-2 h4">
+            {% if project.collaboration_link %}
+                <small>
+                    <a href="{{ project.collaboration_link }}">Collaborate</a>
+                </small>
+            {% endif %}
+          </div>
+      </div>
+      <br>
     {% endfor %}
-  </ul>
 
   <h2>Projects I Contribute To</h2>
-  <ul class="list-unstyled owned-list">
     {% for project in contributing %}
-      <li><a href="/project/{{ project.key.id() }}">{{ project.title }}</a></li>
+      <div class="row">
+          <div class="col-md-4 h4">
+              <a href="/project/{{ project.key.id() }}">{{ project.title }}</a>
+          </div>
+          <div class="col-md-2 h4">
+             {% if project.code_link %}
+                  <small>
+                    <a href="{{ project.code_link }}">Contribute Code</a>
+                  </small>
+             {% endif %}
+          </div>
+          <div class="col-md-2 h4">
+            {% if project.collaboration_link %}
+                <small>
+                    <a href="{{ project.collaboration_link }}">Collaborate</a>
+                </small>
+            {% endif %}
+          </div>
+      </div>
+      <br>
     {% endfor %}
-  </ul>
 {% endblock body %}
