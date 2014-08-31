@@ -6,10 +6,10 @@
     {% for project, link in projects_and_links %}
       <div class="row">
           <h3>
-              <div class="col-md-8">
+              <div class="col-md-7">
                      <a href="{{ link }}">{{ project.name }}</a>
               </div>
-          <div class="col-md-4">
+          <div class="col-md-5">
             {% if project.organization_name %}
                 <small>Proposed by: {{ project.organization_name }} </small>
             {% endif %}
